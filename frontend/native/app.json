@@ -1,11 +1,16 @@
 {
   "expo": {
-    "name": "native",
-    "slug": "native",
+    "name": "Long Chau",
+    "slug": "longchau",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/seele_icon.png",
     "scheme": "native",
+    // "splash": {
+    //   "image": "./assets/images/splash-icon.png",
+    //   "resizeMode": "contain",
+    //   "backgroundColor": "#000000"
+    // },
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -14,7 +19,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true
     },
