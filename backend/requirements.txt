@@ -1,0 +1,3 @@
+django
+djagorestframework
+environs
