@@ -40,14 +40,28 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={30} name="house.fill" color={color} />,
         }}
       />
-            <Tabs.Screen
-        name="product_page"
+      <Tabs.Screen
+        name="product"
         options={{
           title: 'Product',
           tabBarIcon: ({ color }) => <IconSymbol size={30} name="house.fill" color={color} />,
         }}
       />
-      
+      <Tabs.Screen
+        name="cart"
+        options={{
+          title: 'Cart',
+          tabBarIcon: ({ color }) => <IconSymbol size={30} name="house.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="vaccination"
+        options={{
+          title: 'Vaccine',
+          tabBarIcon: ({ color }) => <IconSymbol size={30} name="house.fill" color={color} />,
+        }}
+      />
+
     </Tabs>
   );
 }
