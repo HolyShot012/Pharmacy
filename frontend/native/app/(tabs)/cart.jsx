@@ -3,6 +3,8 @@ import { FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, Vi
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { theme } from '../../components/ui/Theme';
+import { useState } from 'react';
+import { styles } from '../../components/ui/Styles'
 
 const CartPage = () => {
     const updateQuantity = (id, change) => {
@@ -14,6 +16,10 @@ const CartPage = () => {
             ).filter(item => item.quantity > 0)
         );
     };
+      const [cartItems, setCartItems] = useState([
+    { id: 1, name: 'Paracetamol 500mg', price: 25.50, quantity: 2, image: '💊' },
+    { id: 2, name: 'Vitamin D3', price: 35.75, quantity: 1, image: '🧪' }
+  ]);
     const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     return (
         <SafeAreaView style={styles.container}>

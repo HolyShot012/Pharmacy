@@ -4,9 +4,18 @@ import { FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, Vi
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { theme } from '../../components/ui/Theme';
+import { useState } from 'react';
+import { styles } from '../../components/ui/Styles'
 
-const VaccinationPage = () => (
-    <SafeAreaView style={styles.container}>
+const VaccinationPage = () =>{
+const vaccinations = [
+  { id: 1, name: 'COVID-19 Booster', price: 45.00, duration: '30 min', nextAvailable: 'Today 2:00 PM' },
+  { id: 2, name: 'Flu Shot', price: 35.00, duration: '15 min', nextAvailable: 'Tomorrow 10:00 AM' },
+  { id: 3, name: 'Hepatitis B', price: 65.00, duration: '20 min', nextAvailable: 'Jul 5, 9:00 AM' }
+];
+
+    return(
+        <SafeAreaView style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: theme.spacing.md }}>
                 <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.colors.text }}>Vaccination Services</Text>
@@ -59,7 +68,9 @@ const VaccinationPage = () => (
                 </TouchableOpacity>
             </View>
         </ScrollView>
-    </SafeAreaView>
+        </SafeAreaView>
 );
+
+} 
 
 export default VaccinationPage;
