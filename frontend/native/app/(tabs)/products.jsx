@@ -24,7 +24,24 @@ const featuredProducts = [
   { id: 4, name: 'Face Mask (Pack of 50)', price: 120.00, originalPrice: 140.00, discount: 14, image: '😷', category: 'Protection', rating: 4.4, inStock: false },
   { id: 5, name: 'Digital Thermometer', price: 85.00, originalPrice: 100.00, discount: 15, image: '🌡️', category: 'Medical Devices', rating: 4.7, inStock: true },
 ];
-  const [favorites, setFavorites] = useState([1, 3, 5]);
+const [favorites, setFavorites] = useState([1, 3, 5]);
+const [cartItems, setCartItems] = useState([
+    { id: 1, name: 'Paracetamol 500mg', price: 25.50, quantity: 2, image: '💊' },
+    { id: 2, name: 'Vitamin D3', price: 35.75, quantity: 1, image: '🧪' }
+  ]);
+const addToCart = (product) => {
+    setCartItems(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      if (existing) {
+        return prev.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1, image: product.image }];
+    });
+  };
   return (
 <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
