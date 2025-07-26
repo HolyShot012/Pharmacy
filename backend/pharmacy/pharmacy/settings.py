@@ -77,11 +77,19 @@ WSGI_APPLICATION = 'pharmacy.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+import os
+from dotenv import load_dotenv
+import dj_database_url
+
+# Load environment variables from .env
+load_dotenv()
+
+# Build the database URL from environment variables
+DATABASE_URL = f"postgres://{os.getenv('user')}:{os.getenv('password')}@{os.getenv('host')}:{os.getenv('port')}/{os.getenv('dbname')}"
+
+# Configure Django database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse(DATABASE_URL)
 }
 
 
