@@ -11,7 +11,7 @@ export const theme = {
   spacing: {
     sm: 8,
     md: 16,
-    lg: 24,
+    lg: 40,
   },
   fontSizes: {
     xs: 12,

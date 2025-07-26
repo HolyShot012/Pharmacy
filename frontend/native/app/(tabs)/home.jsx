@@ -1,14 +1,16 @@
 import { AntDesign } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Bell from 'react-native-vector-icons/Feather';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useCart } from '../../components/CartContext';
+import { useFavorites } from '../../components/FavoritesContext';
+import { styles } from '../../components/ui/Styles';
 import { theme } from '../../components/ui/Theme';
-import {styles} from '../../components/ui/Styles';
 const services = [
   { id: 1, name: 'Prescription Upload', icon: FontAwesome5, iconName: 'camera', color: '#3B82F6' },
   { id: 2, name: 'QR Code Scan', icon: FontAwesome5, iconName: 'qrcode', color: '#10B981' },
@@ -50,32 +52,8 @@ const featuredProducts = [
 const HomePage = () => {
 const [activeTab, setActiveTab] = useState('home');
   const [searchQuery, setSearchQuery] = useState('');
-  const [favorites, setFavorites] = useState([1, 3, 5]);
-  const [cartItems, setCartItems] = useState([
-    { id: 1, name: 'Paracetamol 500mg', price: 25.50, quantity: 2, image: '💊' },
-    { id: 2, name: 'Vitamin D3', price: 35.75, quantity: 1, image: '🧪' }
-  ]);
-
-  const toggleFavorite = (productId) => {
-    setFavorites(prev =>
-      prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
-  };
-  const addToCart = (product) => {
-    setCartItems(prev => {
-      const existing = prev.find(item => item.id === product.id);
-      if (existing) {
-        return prev.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...product, quantity: 1, image: product.image }];
-    });
-  };
+  const { addToCart } = useCart();
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
 return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <FlatList
@@ -230,7 +208,7 @@ return (
                                           onPress={() => toggleFavorite(item.id)}
                                           style={styles.favoriteButton}
                                       >
-                                          <Icon name="heart" size={16} color={favorites.includes(item.id) ? '#EF4444' : '#D1D5DB'} />
+                                          <Icon name="heart" size={16} color={isFavorite(item.id) ? '#EF4444' : '#D1D5DB'} />
                                       </TouchableOpacity>
                                       {item.discount > 0 && (
                                           <View style={styles.discountBadge}>

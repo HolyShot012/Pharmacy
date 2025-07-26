@@ -1,35 +1,22 @@
 import { AntDesign } from '@expo/vector-icons';
-import { FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useCart } from '../../components/CartContext';
+import { styles } from '../../components/ui/Styles';
 import { theme } from '../../components/ui/Theme';
-import { useState } from 'react';
-import { styles } from '../../components/ui/Styles'
 
 const CartPage = () => {
-    const updateQuantity = (id, change) => {
-        setCartItems(prev =>
-            prev.map(item =>
-                item.id === id
-                    ? { ...item, quantity: Math.max(0, item.quantity + change) }
-                    : item
-            ).filter(item => item.quantity > 0)
-        );
-    };
-      const [cartItems, setCartItems] = useState([
-    { id: 1, name: 'Paracetamol 500mg', price: 25.50, quantity: 2, image: '💊' },
-    { id: 2, name: 'Vitamin D3', price: 35.75, quantity: 1, image: '🧪' }
-  ]);
+    const { cartItems, updateQuantity, clearCart } = useCart();
     const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <FlatList
                 data={cartItems}
                 keyExtractor={item => item.id.toString()}
                 ListHeaderComponent={
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: theme.spacing.md }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: theme.spacing.md, paddingTop:theme.spacing.lg }}>
                         <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.colors.text }}>Shopping Cart ({cartItems.length})</Text>
-                        <TouchableOpacity onPress={() => setCartItems([])}>
+                        <TouchableOpacity onPress={clearCart}>
                             <Text style={{ color: '#EF4444', fontWeight: 'bold' }}>Clear All</Text>
                         </TouchableOpacity>
                     </View>
@@ -83,7 +70,7 @@ const CartPage = () => {
                         <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.colors.text, marginBottom: 8 }}>Your cart is empty</Text>
                         <Text style={{ color: theme.colors.subtext, marginBottom: 24 }}>Add some products to get started</Text>
                         <TouchableOpacity
-                            onPress={() => setActiveTab('products')}
+                            // onPress={() => setActiveTab('products')}
                             style={{ backgroundColor: theme.colors.primary, paddingHorizontal: 32, paddingVertical: 12, borderRadius: 16 }}
                         >
                             <Text style={{ color: '#fff', fontWeight: 'bold' }}>Browse Products</Text>
@@ -91,8 +78,9 @@ const CartPage = () => {
                     </View>
                 )}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 0 }}
             />
-        </SafeAreaView>
+        </View>
     );
 };
 
