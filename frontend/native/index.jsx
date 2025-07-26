@@ -7,7 +7,7 @@ import Bell from 'react-native-vector-icons/Feather';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { theme } from '../../components/ui/Theme';
+import { theme } from './components/ui/Theme';
 
 const services = [
   { id: 1, name: 'Prescription Upload', icon: FontAwesome5, iconName: 'camera', color: '#3B82F6' },
