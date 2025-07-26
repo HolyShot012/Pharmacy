@@ -49,11 +49,16 @@ const featuredProducts = [
 
 
 
+import { useRouter } from 'expo-router';
+import { Modal, Pressable } from 'react-native';
+
 const HomePage = () => {
 const [activeTab, setActiveTab] = useState('home');
   const [searchQuery, setSearchQuery] = useState('');
   const { addToCart } = useCart();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const [showLogout, setShowLogout] = useState(false);
+  const router = useRouter();
 return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <FlatList
@@ -74,11 +79,27 @@ return (
                               <Bell name="bell" size={24} color={theme.colors.subtext} />
                               <View style={styles.notificationBadge} />
                           </View>
-                          <View style={styles.profile}>
+                          <TouchableOpacity style={styles.profile} onPress={() => setShowLogout(true)}>
                               <Icon name="person" size={20} color={theme.colors.white} />
-                          </View>
+                          </TouchableOpacity>
                       </View>
                   </View>
+
+                  {/* Logout Modal */}
+                  <Modal
+                    visible={showLogout}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setShowLogout(false)}
+                  >
+                    <Pressable style={{ flex: 1, backgroundColor: 'transparent' }} onPress={() => setShowLogout(false)}>
+                      <View style={{ position: 'absolute', top: 60, right: 24, backgroundColor: '#FFF', borderRadius: 12, padding: 20, elevation: 5, shadowColor: '#000', shadowOpacity: 0.1 }}>
+                        <TouchableOpacity onPress={() => { setShowLogout(false); router.replace('login'); }}>
+                          <Text style={{ color: '#EF4444', fontWeight: 'bold', fontSize: 16 }}>Log out</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </Pressable>
+                  </Modal>
 
                   {/* Search Bar */}
                   <View style={styles.searchContainer}>

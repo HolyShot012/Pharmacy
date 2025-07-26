@@ -6,11 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/images/seele_icon.png",
     "scheme": "native",
-    // "splash": {
-    //   "image": "./assets/images/splash-icon.png",
-    //   "resizeMode": "contain",
-    //   "backgroundColor": "#000000"
-    // },
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
@@ -19,10 +14,9 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000000",
-        
+        "backgroundColor": "#000000"
       },
-      "edgeToEdgeEnabled": true,
+      "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
@@ -39,7 +33,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
