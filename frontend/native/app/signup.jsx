@@ -1,46 +1,146 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 export default function SignupScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [fields, setFields] = useState({
+    firstName: '',
+    lastName: '',
+    dob: '',
+    email: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
+    address: '',
+    province: '',
+    city: '',
+  });
+  const [error, setError] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const headerHeight = useHeaderHeight();
+  const handleChange = (key, value) => {
+    setFields({ ...fields, [key]: value });
+  };
+
+  const validate = () => {
+    if (!fields.firstName || !fields.lastName || !fields.dob || !fields.email || !fields.username || !fields.password || !fields.confirmPassword || !fields.phone || !fields.address || !fields.province || !fields.city) {
+      return 'All fields are required.';
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(fields.email)) {
+      return 'Invalid email address.';
+    }
+    if (fields.password.length < 6) {
+      return 'Password must be at least 6 characters.';
+    }
+    if (fields.password !== fields.confirmPassword) {
+      return 'Passwords do not match.';
+    }
+    return '';
+  };
+
+  const handleSignup = () => {
+    const err = validate();
+    if (err) {
+      setError(err);
+      return;
+    }
+    setError('');
+    setError('Signup successful! (not really, just a demo)');
+  };
+
+  // Date picker handler
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      const iso = selectedDate.toISOString().slice(0, 10);
+      setFields({ ...fields, dob: iso });
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign Up</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.button} onPress={() => router.replace('/') /* fake signup */}>
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.replace('login')} style={styles.linkContainer}>
-        <Text style={styles.linkText}>Already have an account? Login</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.secondaryButton} onPress={() => router.replace('/') /* bypass */}>
-        <Text style={styles.secondaryButtonText}>Proceed to App</Text>
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={headerHeight}
+      >
+        <ScrollView
+          contentContainerStyle={[styles.container, { flexGrow: 1, paddingBottom: 16 }]}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={styles.title}>Sign Up</Text>
+          <TextInput style={styles.input} placeholder="First Name" value={fields.firstName} onChangeText={v => handleChange('firstName', v)} autoCapitalize="words" />
+          <TextInput style={styles.input} placeholder="Last Name" value={fields.lastName} onChangeText={v => handleChange('lastName', v)} autoCapitalize="words" />
+          <TouchableOpacity style={[styles.input, { justifyContent: 'center' }]} onPress={() => setShowDatePicker(true)} activeOpacity={0.7}>
+            <Text style={{ color: fields.dob ? '#222' : '#888', fontSize: 16 }}>
+              {fields.dob ? fields.dob : 'Date of Birth'}
+            </Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={fields.dob ? new Date(fields.dob) : new Date()}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={handleDateChange}
+              maximumDate={new Date()}
+            />
+          )}
+          <TextInput style={styles.input} placeholder="Email" value={fields.email} onChangeText={v => handleChange('email', v)} autoCapitalize="none" keyboardType="email-address" />
+          <TextInput style={styles.input} placeholder="Username" value={fields.username} onChangeText={v => handleChange('username', v)} autoCapitalize="none" autoCorrect={false} />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={[styles.input, { flex: 1, marginBottom: 0 }]}
+              placeholder="Password"
+              value={fields.password}
+              onChangeText={v => handleChange('password', v)}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(v => !v)} style={styles.eyeIcon}>
+              <Icon name={showPassword ? 'eye-off' : 'eye'} size={22} color="#888" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={[styles.input, { flex: 1, marginBottom: 0 }]}
+              placeholder="Confirm Password"
+              value={fields.confirmPassword}
+              onChangeText={v => handleChange('confirmPassword', v)}
+              secureTextEntry={!showConfirmPassword}
+            />
+            <TouchableOpacity onPress={() => setShowConfirmPassword(v => !v)} style={styles.eyeIcon}>
+              <Icon name={showConfirmPassword ? 'eye-off' : 'eye'} size={22} color="#888" />
+            </TouchableOpacity>
+          </View>
+          <TextInput style={styles.input} placeholder="Phone Number" value={fields.phone} onChangeText={v => handleChange('phone', v)} keyboardType="phone-pad" />
+          <TextInput style={[styles.input, { minHeight: 48 }]} placeholder="Address" value={fields.address} onChangeText={v => handleChange('address', v)} multiline numberOfLines={2} />
+          <TextInput style={styles.input} placeholder="Province" value={fields.province} onChangeText={v => handleChange('province', v)} />
+          <TextInput style={styles.input} placeholder="City" value={fields.city} onChangeText={v => handleChange('city', v)} />
+          {error ? <Text style={error.startsWith('Signup successful') ? styles.success : styles.error}>{error}</Text> : null}
+          <TouchableOpacity style={styles.button} onPress={handleSignup}>
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.replace('login')} style={styles.linkContainer}>
+            <Text style={styles.linkText}>Already have an account? Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.replace('/') /* bypass */}>
+            <Text style={styles.secondaryButtonText}>Proceed to App</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
@@ -63,6 +163,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#f9f9f9',
   },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 350,
+    marginBottom: 18,
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 16,
+    padding: 8,
+    zIndex: 2,
+  },
   button: {
     width: '100%',
     maxWidth: 350,
@@ -76,6 +189,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  error: {
+    color: '#EF4444',
+    marginBottom: 8,
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  success: {
+    color: '#10B981',
+    marginBottom: 8,
+    fontSize: 15,
+    fontWeight: 'bold',
   },
   linkContainer: {
     marginTop: 18,

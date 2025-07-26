@@ -6,6 +6,11 @@ export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = () => {
+    setError('User not found.');
+  };
 
   return (
     <View style={styles.container}>
@@ -25,7 +30,8 @@ export default function LoginScreen() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button} onPress={() => router.replace('/') /* fake login */}>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => router.replace('signup')} style={styles.linkContainer}>
@@ -76,6 +82,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  error: {
+    color: '#EF4444',
+    marginBottom: 8,
+    fontSize: 15,
+    fontWeight: 'bold',
   },
   linkContainer: {
     marginTop: 18,
