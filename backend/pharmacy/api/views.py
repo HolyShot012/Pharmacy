@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializer import UserSerializer, OrderItemSerializer
+from .serializer import UserSerializer
 from rest_framework import status
 from .models import Users
 
