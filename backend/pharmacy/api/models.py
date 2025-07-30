@@ -276,7 +276,7 @@ class Users(models.Model):
     birth_date = models.DateField(blank=True, null=True)
     created_at = models.DateTimeField()
 
+
     class Meta:
         managed = False
         db_table = 'users'
-        
