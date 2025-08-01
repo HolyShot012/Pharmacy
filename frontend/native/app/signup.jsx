@@ -67,7 +67,7 @@ export default function SignupScreen() {
         fields.city,
         null, // avatar_url
         null, // preferred_theme
-        "user", // role defaults to 'user'
+        "patient", // role defaults to 'user'
         fields.dob
       );
       setError('');
