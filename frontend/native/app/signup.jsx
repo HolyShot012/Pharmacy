@@ -21,7 +21,6 @@ export default function SignupScreen() {
     address: '',
     province: '',
     city: '',
-    role: '',
   });
   const [error, setError] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -68,7 +67,6 @@ export default function SignupScreen() {
         fields.city,
         null, // avatar_url
         null, // preferred_theme
-        fields.role,
         fields.dob
       );
       setError('');
