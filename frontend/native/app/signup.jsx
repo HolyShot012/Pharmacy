@@ -34,7 +34,7 @@ export default function SignupScreen() {
   };
 
   const validate = () => {
-    if (!fields.firstName || !fields.lastName || !fields.dob || !fields.email || !fields.username || !fields.password || !fields.confirmPassword || !fields.phone || !fields.address || !fields.province || !fields.city || !fields.role) {
+    if (!fields.firstName || !fields.lastName || !fields.dob || !fields.email || !fields.username || !fields.password || !fields.confirmPassword || !fields.address || !fields.province || !fields.city) {
       return 'All fields are required.';
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(fields.email)) {
@@ -45,10 +45,6 @@ export default function SignupScreen() {
     }
     if (fields.password !== fields.confirmPassword) {
       return 'Passwords do not match.';
-    }
-    const validRoles = ['patient', 'doctor', 'pharmacist', 'admin'];
-    if (!validRoles.includes(fields.role)) {
-      return 'Role must be one of: patient, doctor, pharmacist, admin.';
     }
     return '';
   };
@@ -149,7 +145,6 @@ export default function SignupScreen() {
           <TextInput style={[styles.input, { minHeight: 48 }]} placeholder="Address" value={fields.address} onChangeText={v => handleChange('address', v)} multiline numberOfLines={2} />
           <TextInput style={styles.input} placeholder="Province" value={fields.province} onChangeText={v => handleChange('province', v)} />
           <TextInput style={styles.input} placeholder="City" value={fields.city} onChangeText={v => handleChange('city', v)} />
-          <TextInput style={styles.input} placeholder="Role (patient/doctor/pharmacist/admin)" value={fields.role} onChangeText={v => handleChange('role', v)} autoCapitalize="none" />
           {error ? <Text style={error.startsWith('Signup successful') ? styles.success : styles.error}>{error}</Text> : null}
           <TouchableOpacity style={styles.button} onPress={handleSignup}>
             <Text style={styles.buttonText}>Sign Up</Text>
