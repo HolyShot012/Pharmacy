@@ -40,6 +40,12 @@ class StatusDimension(models.Model):
         db_table = 'status_dimension'
 
 class Users(models.Model):
+    ROLE_CHOICES = [
+        ('patient', 'Patient'),
+        ('doctor', 'Doctor'),
+        ('pharmacist', 'Pharmacist'),
+        ('admin', 'Admin'),
+    ]
     id = models.OneToOneField(User, on_delete=models.CASCADE, db_column='id', primary_key=True)
  
     phone_number = models.CharField(max_length=20, blank=True, null=True)
@@ -48,9 +54,9 @@ class Users(models.Model):
     city = models.CharField(max_length=50, blank=True, null=True)
     avatar_url = models.CharField(max_length=200, blank=True, null=True)
     preferred_theme = models.CharField(max_length=20, blank=True, null=True)
-    role = models.CharField(max_length=50)
+    role = models.CharField(max_length=50, choices=ROLE_CHOICES)
     birth_date = models.DateField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+
 
     class Meta:
         db_table = 'users'

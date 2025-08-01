@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { login } from './api';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -8,13 +9,20 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = () => {
-    setError('User not found.');
+  const handleLogin = async () => {
+    try {
+      const response = await login(email, password); // Using email as username
+      setError('');
+      router.replace('/'); // Navigate to home or protected route
+    } catch (error) {
+      const errorMessage = error.non_field_errors || error.error || 'Login failed. Please check your credentials.';
+      setError(errorMessage);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>Logins</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"

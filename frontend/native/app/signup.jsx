@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { register } from './api';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -20,43 +21,68 @@ export default function SignupScreen() {
     address: '',
     province: '',
     city: '',
+    role: '',
   });
   const [error, setError] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const headerHeight = useHeaderHeight();
+
   const handleChange = (key, value) => {
     setFields({ ...fields, [key]: value });
   };
 
   const validate = () => {
-    if (!fields.firstName || !fields.lastName || !fields.dob || !fields.email || !fields.username || !fields.password || !fields.confirmPassword || !fields.phone || !fields.address || !fields.province || !fields.city) {
+    if (!fields.firstName || !fields.lastName || !fields.dob || !fields.email || !fields.username || !fields.password || !fields.confirmPassword || !fields.phone || !fields.address || !fields.province || !fields.city || !fields.role) {
       return 'All fields are required.';
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(fields.email)) {
       return 'Invalid email address.';
     }
-    if (fields.password.length < 6) {
-      return 'Password must be at least 6 characters.';
+    if (fields.password.length < 8) {
+      return 'Password must be at least 8 characters.';
     }
     if (fields.password !== fields.confirmPassword) {
       return 'Passwords do not match.';
     }
+    const validRoles = ['patient', 'doctor', 'pharmacist', 'admin'];
+    if (!validRoles.includes(fields.role)) {
+      return 'Role must be one of: patient, doctor, pharmacist, admin.';
+    }
     return '';
   };
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     const err = validate();
     if (err) {
       setError(err);
       return;
     }
-    setError('');
-    setError('Signup successful! (not really, just a demo)');
+    try {
+      const response = await register(
+        fields.username,
+        fields.email,
+        fields.password,
+        fields.firstName,
+        fields.lastName,
+        fields.phone,
+        fields.address,
+        fields.province,
+        fields.city,
+        null, // avatar_url
+        null, // preferred_theme
+        fields.role,
+        fields.dob
+      );
+      setError('');
+      router.replace('/'); // Navigate to home or protected route
+    } catch (error) {
+      const errorMessage = error.error || JSON.stringify(error);
+      setError(errorMessage);
+    }
   };
 
-  // Date picker handler
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
@@ -123,6 +149,7 @@ export default function SignupScreen() {
           <TextInput style={[styles.input, { minHeight: 48 }]} placeholder="Address" value={fields.address} onChangeText={v => handleChange('address', v)} multiline numberOfLines={2} />
           <TextInput style={styles.input} placeholder="Province" value={fields.province} onChangeText={v => handleChange('province', v)} />
           <TextInput style={styles.input} placeholder="City" value={fields.city} onChangeText={v => handleChange('city', v)} />
+          <TextInput style={styles.input} placeholder="Role (patient/doctor/pharmacist/admin)" value={fields.role} onChangeText={v => handleChange('role', v)} autoCapitalize="none" />
           {error ? <Text style={error.startsWith('Signup successful') ? styles.success : styles.error}>{error}</Text> : null}
           <TouchableOpacity style={styles.button} onPress={handleSignup}>
             <Text style={styles.buttonText}>Sign Up</Text>
