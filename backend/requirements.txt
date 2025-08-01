@@ -6,3 +6,5 @@ supabase
 dj-database-url
 python-dotenv
 django-phonenumber-field[phonenumbers]
+django-cors-headers
+djangorestframework-simplejwt
