@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://127.0.0.1:8000'; // Replace with your Supabase or production URL (e.g., https://your-supabase-url)
+const API_URL = 'http://192.168.1.39:8000'; // Replace with your Supabase or production URL (e.g., https://your-supabase-url)
 
 const api = axios.create({
     baseURL: API_URL,
@@ -99,7 +99,7 @@ export const login = async (username, password) => {
         await storeTokens(access, refresh);
         return response.data;
     } catch (error) {
-        console.log(error.response)
+        console.log(error)
         throw error.response?.data || { error: 'Login failed' };
     }
 };

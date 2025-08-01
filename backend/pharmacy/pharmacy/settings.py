@@ -25,7 +25,12 @@ SECRET_KEY = 'django-insecure-7mx^b-#q_9xw09qltrd*9gyezu_ja!zr0-wge+_l&nq%gt4fq3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '10.0.2.2',  # Android emulator
+    '192.168.1.39', 
+]
 
 
 # Application definition
@@ -75,6 +80,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8081',  
     'http://127.0.0.1:8000',  
+    'exp://192.168.1.39:8081'
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -100,6 +106,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'pharmacy.wsgi.application'
 
+APPEND_SLASH=False
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
