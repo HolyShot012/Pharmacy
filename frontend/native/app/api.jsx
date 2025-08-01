@@ -80,7 +80,7 @@ export const register = async (
         if (preferredTheme) data.preferred_theme = preferredTheme;
         if (birthDate) data.birth_date = birthDate;
 
-        const response = await api.post('/api/users/register/', data);
+        const response = await api.post('/api/users/register', data);
         const { access, refresh } = response.data;
         await storeTokens(access, refresh);
         return response.data;
@@ -91,14 +91,15 @@ export const register = async (
 
 export const login = async (username, password) => {
     try {
-        const response = await api.post('/api/users/login/', {
+        const response = await api.post('/api/users/login', {
             username,
-            password,
+            password
         });
         const { access, refresh } = response.data;
         await storeTokens(access, refresh);
         return response.data;
     } catch (error) {
+        console.log(error.response)
         throw error.response?.data || { error: 'Login failed' };
     }
 };
