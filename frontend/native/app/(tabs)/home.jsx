@@ -13,8 +13,8 @@ import { styles } from '../../components/ui/Styles';
 import { theme } from '../../components/ui/Theme';
 import { useRouter } from 'expo-router';
 import { Modal, Pressable } from 'react-native';
-import { logout } from '../api.jsx'; // Import your logout function
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../../components/AuthContext';
+
 const services = [
     { id: 1, name: 'Prescription Upload', icon: FontAwesome5, iconName: 'camera', color: '#3B82F6' },
     { id: 2, name: 'QR Code Scan', icon: FontAwesome5, iconName: 'qrcode', color: '#10B981' },
@@ -61,6 +61,7 @@ const HomePage = () => {
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState('Ho Chi Minh City, District 1');
     const [showNotifications, setShowNotifications] = useState(false);
+    const { logout } = useAuth();
     const router = useRouter();
 
     const locations = [
@@ -80,19 +81,14 @@ const HomePage = () => {
     const handleLogout = async () => {
         setIsLoggingOut(true);
         try {
-            const accessToken = await AsyncStorage.getItem('accessToken');
-            if (!accessToken) {
-                router.replace('login')
-            }
-            await logout();
-
+            await logout(); // Use AuthContext logout
             setShowLogout(false);
-            router.replace('login');
+            // No need to manually navigate - AuthContext will handle the redirect
         } catch (error) {
             console.error('Logout error:', error);
             Alert.alert(
                 'Logout Error',
-                error.error || 'Failed to logout. Please try again.',
+                'Failed to logout. Please try again.',
                 [
                     {
                         text: 'OK',

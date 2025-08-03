@@ -1,28 +1,35 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { login } from './api';
+import { useAuth } from '../components/AuthContext'; // Import AuthContext instead of API
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth(); // Use AuthContext login function
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleLogin = async () => {
     try {
-      const response = await login(email, password); // Using email as username
-      setError('');
-      router.replace('/'); // Navigate to home or protected route
+      const result = await login(email, password); // Use AuthContext login
+
+      if (result.success) {
+        setError('');
+        // No need to manually navigate - AuthContext will handle state change
+        // and index.jsx will automatically redirect to /(tabs)
+      } else {
+        setError(result.error);
+      }
     } catch (error) {
-      const errorMessage = error.non_field_errors || error.error || 'Login failed. Please check your credentials.';
-      setError(errorMessage);
+      console.error('Login error:', error);
+      setError('Login failed. Please check your credentials.');
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Logins</Text>
+      <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}
         placeholder="Username"
@@ -45,6 +52,7 @@ export default function LoginScreen() {
       <TouchableOpacity onPress={() => router.replace('signup')} style={styles.linkContainer}>
         <Text style={styles.linkText}>Don't have an account? Sign up</Text>
       </TouchableOpacity>
+      {/* Remove or comment out the bypass button in production */}
       <TouchableOpacity style={styles.secondaryButton} onPress={() => router.replace('/') /* bypass */}>
         <Text style={styles.secondaryButtonText}>Proceed to App</Text>
       </TouchableOpacity>
