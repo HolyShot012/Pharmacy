@@ -56,7 +56,7 @@ export default function RootLayout() {
     <FavoritesProvider>
       <CartProvider>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
+          <Stack screenOptions={{ headerShown: false }}>
             {!isAuthenticated ? (
               // Unauthenticated stack - only login/signup accessible
               <>
