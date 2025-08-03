@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.1.39:8000'; // Replace with your Supabase or production URL (e.g., https://your-supabase-url)
+const API_URL = 'http://192.168.1.76:8000'; // Replace with your Supabase or production URL (e.g., https://your-supabase-url)
 
 const api = axios.create({
     baseURL: API_URL,
@@ -96,6 +96,7 @@ export const login = async (username, password) => {
             password
         });
         const { access, refresh } = response.data;
+        console.log(access)
         await storeTokens(access, refresh);
         return response.data;
     } catch (error) {
@@ -112,7 +113,7 @@ export const logout = async () => {
             throw { error: 'No tokens available' };
         }
         await api.post(
-            '/api/users/logout/',
+            '/api/users/logout',
             { refresh: refreshToken },
             {
                 headers: {

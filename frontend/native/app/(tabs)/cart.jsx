@@ -8,13 +8,14 @@ import { theme } from '../../components/ui/Theme';
 const CartPage = () => {
     const { cartItems, updateQuantity, clearCart } = useCart();
     const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <FlatList
                 data={cartItems}
-                keyExtractor={item => item.id.toString()}
+                keyExtractor={item => (item.product_id || item.id).toString()}
                 ListHeaderComponent={
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: theme.spacing.md, paddingTop:theme.spacing.lg }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: theme.spacing.md, paddingTop: theme.spacing.lg }}>
                         <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.colors.text }}>Shopping Cart ({cartItems.length})</Text>
                         <TouchableOpacity onPress={clearCart}>
                             <Text style={{ color: '#EF4444', fontWeight: 'bold' }}>Clear All</Text>
@@ -28,24 +29,62 @@ const CartPage = () => {
                                 <Text style={{ fontSize: 28 }}>{item.image}</Text>
                             </View>
                             <View style={{ flex: 1 }}>
-                                <Text style={{ fontWeight: 'bold', color: theme.colors.text }}>{item.name}</Text>
-                                <Text style={{ color: '#16A34A', fontWeight: 'bold' }}>${item.price}</Text>
+                                <Text style={{ fontWeight: 'bold', color: theme.colors.text, fontSize: 16 }}>{item.name}</Text>
+                                <Text style={{ color: theme.colors.subtext, fontSize: 12, marginTop: 2 }}>{item.category}</Text>
+                                {item.manufacturer && (
+                                    <Text style={{ color: theme.colors.subtext, fontSize: 11, marginTop: 1 }}>{item.manufacturer}</Text>
+                                )}
+                                <Text style={{ color: '#16A34A', fontWeight: 'bold', fontSize: 16, marginTop: 4 }}>${item.price}</Text>
+                                {item.need_approval && (
+                                    <View style={{ backgroundColor: '#FEF3C7', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, alignSelf: 'flex-start', marginTop: 4 }}>
+                                        <Text style={{ color: '#92400E', fontSize: 10, fontWeight: 'bold' }}>Prescription Required</Text>
+                                    </View>
+                                )}
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <TouchableOpacity onPress={() => updateQuantity(item.id, -1)} style={{ backgroundColor: '#E5E7EB', borderRadius: 999, padding: 8, marginRight: 4 }}>
+                                <TouchableOpacity
+                                    onPress={() => updateQuantity(item.product_id || item.id, -1)}
+                                    style={{ backgroundColor: '#E5E7EB', borderRadius: 999, padding: 8, marginRight: 4 }}
+                                >
                                     <AntDesign name="minus" size={16} color={theme.colors.text} />
                                 </TouchableOpacity>
                                 <Text style={{ width: 24, textAlign: 'center', fontWeight: 'bold' }}>{item.quantity}</Text>
-                                <TouchableOpacity onPress={() => updateQuantity(item.id, 1)} style={{ backgroundColor: theme.colors.primary, borderRadius: 999, padding: 8, marginLeft: 4 }}>
+                                <TouchableOpacity
+                                    onPress={() => updateQuantity(item.product_id || item.id, 1)}
+                                    style={{ backgroundColor: theme.colors.primary, borderRadius: 999, padding: 8, marginLeft: 4 }}
+                                >
                                     <AntDesign name="plus" size={16} color="#fff" />
                                 </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F3F4F6' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Text style={{ color: theme.colors.subtext, fontSize: 14 }}>Subtotal</Text>
+                                <Text style={{ fontWeight: 'bold', color: theme.colors.text, fontSize: 14 }}>
+                                    ${(item.price * item.quantity).toFixed(2)}
+                                </Text>
                             </View>
                         </View>
                     </View>
                 )}
                 ListFooterComponent={cartItems.length > 0 ? (
                     <View style={styles.productCard}>
-                        <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 8 }}>Order Summary</Text>
+                        <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 16, color: theme.colors.text }}>Order Summary</Text>
+
+                        {/* Items breakdown */}
+                        {cartItems.map((item, index) => (
+                            <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                                <Text style={{ color: theme.colors.subtext, flex: 1 }}>
+                                    {item.name} x{item.quantity}
+                                </Text>
+                                <Text style={{ fontWeight: 'bold', color: theme.colors.text }}>
+                                    ${(item.price * item.quantity).toFixed(2)}
+                                </Text>
+                            </View>
+                        ))}
+
+                        <View style={{ height: 1, backgroundColor: '#F3F4F6', marginVertical: 12 }} />
+
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
                             <Text style={{ color: theme.colors.subtext }}>Subtotal</Text>
                             <Text style={{ fontWeight: 'bold' }}>${total.toFixed(2)}</Text>
@@ -54,31 +93,67 @@ const CartPage = () => {
                             <Text style={{ color: theme.colors.subtext }}>Delivery Fee</Text>
                             <Text style={{ fontWeight: 'bold' }}>$5.00</Text>
                         </View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Total</Text>
-                            <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#16A34A' }}>${(total + 5).toFixed(2)}</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                            <Text style={{ color: theme.colors.subtext }}>Tax (8%)</Text>
+                            <Text style={{ fontWeight: 'bold' }}>${(total * 0.08).toFixed(2)}</Text>
                         </View>
-                        <TouchableOpacity style={{ backgroundColor: theme.colors.primary, padding: 16, borderRadius: 12, marginTop: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+
+                        <View style={{ height: 1, backgroundColor: '#F3F4F6', marginVertical: 8 }} />
+
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.colors.text }}>Total</Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 18, color: '#16A34A' }}>
+                                ${(total + 5 + (total * 0.08)).toFixed(2)}
+                            </Text>
+                        </View>
+
+                        <TouchableOpacity style={{
+                            backgroundColor: theme.colors.primary,
+                            padding: 16,
+                            borderRadius: 12,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 4,
+                            elevation: 3
+                        }}>
                             <MaterialIcons name="credit-card" size={20} color="#fff" style={{ marginRight: 8 }} />
-                            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Proceed to Checkout</Text>
+                            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Proceed to Checkout</Text>
                         </TouchableOpacity>
                     </View>
                 ) : null}
                 ListEmptyComponent={(
-                    <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: 60 }}>
-                        <Text style={{ fontSize: 48, marginBottom: 16 }}>🛒</Text>
-                        <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.colors.text, marginBottom: 8 }}>Your cart is empty</Text>
-                        <Text style={{ color: theme.colors.subtext, marginBottom: 24 }}>Add some products to get started</Text>
+                    <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: 100, paddingHorizontal: theme.spacing.md }}>
+                        <Text style={{ fontSize: 64, marginBottom: 24 }}>🛒</Text>
+                        <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.colors.text, marginBottom: 8, textAlign: 'center' }}>
+                            Your cart is empty
+                        </Text>
+                        <Text style={{ color: theme.colors.subtext, marginBottom: 32, textAlign: 'center', fontSize: 16 }}>
+                            Add some products to get started
+                        </Text>
                         <TouchableOpacity
                             // onPress={() => setActiveTab('products')}
-                            style={{ backgroundColor: theme.colors.primary, paddingHorizontal: 32, paddingVertical: 12, borderRadius: 16 }}
+                            style={{
+                                backgroundColor: theme.colors.primary,
+                                paddingHorizontal: 32,
+                                paddingVertical: 16,
+                                borderRadius: 12,
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.1,
+                                shadowRadius: 4,
+                                elevation: 3
+                            }}
                         >
-                            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Browse Products</Text>
+                            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Browse Products</Text>
                         </TouchableOpacity>
                     </View>
                 )}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 0 }}
+                contentContainerStyle={{ paddingBottom: 20 }}
             />
         </View>
     );

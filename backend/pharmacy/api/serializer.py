@@ -109,6 +109,7 @@ class UserLoginSerializer(serializers.Serializer):
         return data
 
 class UserLogoutSerializer(serializers.Serializer):
+
     refresh = serializers.CharField(required=True)
 
     def validate(self, data):
@@ -118,3 +119,47 @@ class UserLogoutSerializer(serializers.Serializer):
         except Exception as e:
             raise serializers.ValidationError({'refresh': 'Invalid or already blacklisted token'})
         return data
+    
+class UsersModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Users
+        fields = [
+            'phone_number',
+            'current_address',
+            'province',
+            'city',
+            'avatar_url',
+            'preferred_theme',
+            'role',
+            'birth_date',
+        ]
+
+class UsersSerializer(serializers.ModelSerializer):
+    users = UsersModelSerializer(read_only=True, allow_null=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'users',
+        ]
+
+    def to_representation(self, instance):
+        # Flatten the users fields into the user object
+        representation = super().to_representation(instance)
+        users_data = representation.pop('users', {}) or {
+            'phone_number': None,
+            'current_address': None,
+            'province': None,
+            'city': None,
+            'avatar_url': None,
+            'preferred_theme': None,
+            'role': 'patient',
+            'birth_date': None,
+        }
+        return {**representation, **users_data}
+    
