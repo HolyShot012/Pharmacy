@@ -1,45 +1,135 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import * as SecureStore from 'expo-secure-store';
-import api, { login as apiLogin, logout as apiLogout } from './api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppState } from 'react-native';
+import api, { login as apiLogin, logout as apiLogout } from '../app/api';
 
 const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null); // You can store user info here
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider = ({ children }) => {
+  const [authState, setAuthState] = useState({
+    isAuthenticated: false,
+    isLoading: true,
+    user: null,
+  });
 
   useEffect(() => {
-    // On mount, try to load token from storage
-    (async () => {
-      const storedToken = await SecureStore.getItemAsync('jwt');
-      if (storedToken) {
-        setToken(storedToken);
-        // Optionally, fetch user info with the token
+    initializeAuth();
+
+    // Handle app state changes
+    const handleAppStateChange = (nextAppState) => {
+      if (nextAppState === 'active' && authState.isAuthenticated) {
+        validateCurrentUser();
       }
-      setLoading(false);
-    })();
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => subscription?.remove();
   }, []);
 
-  const login = async (jwt, userInfo = null) => {
-    setToken(jwt);
-    await SecureStore.setItemAsync('jwt', jwt);
-    setUser(userInfo);
+  const initializeAuth = async () => {
+    try {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+
+      if (!accessToken) {
+        setAuthState({
+          isAuthenticated: false,
+          isLoading: false,
+          user: null,
+        });
+        return;
+      }
+
+      // Validate token by getting user profile
+      await validateCurrentUser();
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+      await clearAuthData();
+    }
+  };
+
+  const validateCurrentUser = async () => {
+    try {
+      // Use your existing /api/users/profile endpoint to validate token
+      const response = await api.get('/api/users/profile');
+
+      setAuthState({
+        isAuthenticated: true,
+        isLoading: false,
+        user: response.data,
+      });
+    } catch (error) {
+      console.error('Token validation failed:', error);
+      await clearAuthData();
+    }
+  };
+
+  const login = async (username, password) => {
+    try {
+      setAuthState(prev => ({ ...prev, isLoading: true }));
+
+      const response = await apiLogin(username, password);
+
+      setAuthState({
+        isAuthenticated: true,
+        isLoading: false,
+        user: response.user,
+      });
+
+      return { success: true, data: response };
+    } catch (error) {
+      setAuthState(prev => ({ ...prev, isLoading: false }));
+      return {
+        success: false,
+        error: error.non_field_errors?.[0] || error.error || 'Login failed'
+      };
+    }
   };
 
   const logout = async () => {
-    setToken(null);
-    setUser(null);
-    await SecureStore.deleteItemAsync('jwt');
+    try {
+      await apiLogout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      await clearAuthData();
+    }
+  };
+
+  const clearAuthData = async () => {
+    try {
+      await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
+      setAuthState({
+        isAuthenticated: false,
+        isLoading: false,
+        user: null,
+      });
+    } catch (error) {
+      console.error('Error clearing auth data:', error);
+    }
+  };
+
+  const refreshAuth = async () => {
+    await validateCurrentUser();
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading, isAuthenticated: !!token }}>
+    <AuthContext.Provider
+      value={{
+        ...authState,
+        login,
+        logout,
+        refreshAuth,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
