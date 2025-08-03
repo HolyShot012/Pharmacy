@@ -1,6 +1,22 @@
-// This file makes the (tabs) directory the root route for the app
+// index.jsx
 import { Redirect } from 'expo-router';
+import { useAuth } from '../components/AuthContext';
+import { View, ActivityIndicator } from 'react-native';
 
 export default function Index() {
-  return <Redirect href="/(tabs)/login" />;
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Redirect href="/(tabs)" />;
+  } else {
+    return <Redirect href="/login" />;
+  }
 }

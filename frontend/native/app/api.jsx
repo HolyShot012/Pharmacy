@@ -96,11 +96,11 @@ export const login = async (username, password) => {
             password
         });
         const { access, refresh } = response.data;
-        console.log(access)
+        console.log('Login successful, access token:', access);
         await storeTokens(access, refresh);
         return response.data;
     } catch (error) {
-        console.log(error)
+        console.log('Login error:', error);
         throw error.response?.data || { error: 'Login failed' };
     }
 };
@@ -110,7 +110,9 @@ export const logout = async () => {
         const accessToken = await getAccessToken();
         const refreshToken = await getRefreshToken();
         if (!accessToken || !refreshToken) {
-            throw { error: 'No tokens available' };
+            console.log('No tokens available for logout');
+            await clearTokens(); // Clear any remaining tokens
+            return { message: 'Successfully logged out' };
         }
         await api.post(
             '/api/users/logout',
@@ -124,6 +126,8 @@ export const logout = async () => {
         await clearTokens();
         return { message: 'Successfully logged out' };
     } catch (error) {
+        // Even if logout fails, clear tokens locally
+        await clearTokens();
         throw error.response?.data || { error: 'Logout failed' };
     }
 };
@@ -139,8 +143,10 @@ export const refreshToken = async () => {
         });
         const { access } = response.data;
         await AsyncStorage.setItem('accessToken', access);
+        console.log('Token refreshed successfully');
         return access;
     } catch (error) {
+        console.log('Token refresh failed, clearing tokens');
         await clearTokens();
         throw error.response?.data || { error: 'Token refresh failed' };
     }
@@ -167,6 +173,21 @@ export const updateProfile = async (profileData) => {
     }
 };
 
+// Request interceptor to add token to requests
+api.interceptors.request.use(
+    async (config) => {
+        const accessToken = await getAccessToken();
+        if (accessToken && !config.headers.Authorization) {
+            config.headers.Authorization = `Bearer ${accessToken}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Response interceptor for token refresh
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -176,13 +197,17 @@ api.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
+                console.log('Attempting to refresh token...');
                 const newAccessToken = await refreshToken();
                 if (newAccessToken) {
                     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                     return api(originalRequest);
                 }
             } catch (refreshError) {
+                console.log('Token refresh failed completely');
                 await clearTokens();
+                // You might want to trigger a logout event here
+                return Promise.reject(refreshError);
             }
         }
 
