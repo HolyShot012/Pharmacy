@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Users
+from .models import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import re
@@ -162,4 +162,51 @@ class UsersSerializer(serializers.ModelSerializer):
             'birth_date': None,
         }
         return {**representation, **users_data}
+    
+class BranchesSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Branches
+        fields = '__all__'
+
+class ProductsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Products
+        fields = '__all__'
+
+class InventorySerializer(serializers.ModelSerializer):
+    product = serializers.PrimaryKeyRelatedField(queryset=Products.objects.all())
+    branch = serializers.PrimaryKeyRelatedField(queryset=Branches.objects.all())
+    
+    class Meta:
+        model = Inventory
+        fields = '__all__'
+
+class OrderItemsSerializer(serializers.ModelSerializer):
+    product = serializers.PrimaryKeyRelatedField(queryset=Products.objects.all())
+    
+    class Meta:
+        model = OrderItems
+        fields = '__all__'
+        
+class BranchesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Branches
+        fields = '__all__'
+
+
+class StatusDimensionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StatusDimension
+        fields = '__all__'
+
+class OrdersSerializer(serializers.ModelSerializer):
+    order_items = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Orders
+        fields = '__all__'
+
+    def get_order_items(self, obj):
+        order_items = obj.orderitems_set.all()
+        return OrderItemsSerializer(order_items, many=True).data
     

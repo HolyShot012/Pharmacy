@@ -121,8 +121,10 @@ load_dotenv('.env')
 
 # Build the database URL from environment variables
 DATABASE_URL = f"postgres://{os.getenv('user')}:{os.getenv('password')}@{os.getenv('host')}:{os.getenv('port')}/{os.getenv('dbname')}"
+
+# Configure DATABASES with connection pooling and max age
 DATABASES = {
-    'default': dj_database_url.parse(DATABASE_URL),
+    'default': dj_database_url.parse(DATABASE_URL, conn_max_age=0)
 }
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
