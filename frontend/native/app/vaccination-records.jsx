@@ -1,291 +1,104 @@
-import React, { useState } from 'react';
-import { FlatList, Text, TouchableOpacity, View, Alert, Modal, ScrollView } from 'react-native';
+import React from 'react';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { styles } from '../components/ui/Styles';
 import { theme } from '../components/ui/Theme';
 import { useRouter } from 'expo-router';
 
 const VaccinationRecordsPage = () => {
     const router = useRouter();
-    const [selectedRecord, setSelectedRecord] = useState(null);
-    const [showCertificate, setShowCertificate] = useState(false);
 
-    const vaccinationRecords = [
+    const vaccinationHistory = [
         {
             id: 1,
-            vaccine: 'COVID-19 (Pfizer-BioNTech)',
+            vaccine: 'COVID-19 Booster (Pfizer)',
             date: '2024-01-15',
-            doseNumber: '1st Dose',
-            location: 'HealthCare Pharmacy',
-            batchNumber: 'PF001234',
-            administrator: 'Dr. Sarah Johnson',
-            nextDue: '2024-02-15',
-            status: 'Completed',
-            certificateId: 'COV-2024-001',
-            sideEffects: 'Mild soreness at injection site',
-            notes: 'Patient tolerated vaccine well'
+            provider: 'HealthCare Pharmacy',
+            batchNumber: 'PF123456',
+            status: 'completed',
+            nextDue: null,
+            certificate: true
         },
         {
             id: 2,
-            vaccine: 'COVID-19 (Pfizer-BioNTech)',
-            date: '2024-02-15',
-            doseNumber: '2nd Dose',
-            location: 'HealthCare Pharmacy',
-            batchNumber: 'PF001567',
-            administrator: 'Dr. Sarah Johnson',
-            nextDue: '2024-08-15',
-            status: 'Completed',
-            certificateId: 'COV-2024-002',
-            sideEffects: 'None reported',
-            notes: 'Booster recommended in 6 months'
+            vaccine: 'Influenza (Flu Shot)',
+            date: '2024-03-22',
+            provider: 'HealthCare Pharmacy',
+            batchNumber: 'FL789012',
+            status: 'completed',
+            nextDue: '2025-03-22',
+            certificate: true
         },
         {
             id: 3,
-            vaccine: 'Influenza (Flu Shot)',
-            date: '2023-10-20',
-            doseNumber: 'Annual',
-            location: 'MediPlus Store',
-            batchNumber: 'FLU2023-456',
-            administrator: 'Nurse Mary Wilson',
-            nextDue: '2024-10-20',
-            status: 'Completed',
-            certificateId: 'FLU-2023-001',
-            sideEffects: 'None reported',
-            notes: 'Annual flu vaccination completed'
+            vaccine: 'Hepatitis B',
+            date: '2024-08-10',
+            provider: 'HealthCare Pharmacy',
+            batchNumber: 'HB345678',
+            status: 'scheduled',
+            nextDue: null,
+            certificate: false
         },
         {
             id: 4,
-            vaccine: 'Hepatitis B',
-            date: '2023-06-10',
-            doseNumber: '3rd Dose',
-            location: 'Quick Meds',
-            batchNumber: 'HEP-B-789',
-            administrator: 'Dr. Michael Chen',
-            nextDue: 'N/A',
-            status: 'Completed',
-            certificateId: 'HEP-2023-001',
-            sideEffects: 'Mild fatigue',
-            notes: 'Series completed - immunity confirmed'
-        },
-        {
-            id: 5,
-            vaccine: 'Tetanus-Diphtheria (Td)',
-            date: '2022-03-15',
-            doseNumber: 'Booster',
-            location: 'HealthCare Pharmacy',
-            batchNumber: 'TD-2022-123',
-            administrator: 'Dr. Sarah Johnson',
-            nextDue: '2032-03-15',
-            status: 'Completed',
-            certificateId: 'TD-2022-001',
-            sideEffects: 'Mild soreness',
-            notes: 'Next booster due in 10 years'
+            vaccine: 'Pneumococcal',
+            date: '2023-05-18',
+            provider: 'City Medical Center',
+            batchNumber: 'PN901234',
+            status: 'completed',
+            nextDue: '2028-05-18',
+            certificate: true
         }
     ];
 
     const upcomingVaccinations = [
         {
             id: 1,
-            vaccine: 'COVID-19 Booster',
-            dueDate: '2024-08-15',
-            priority: 'Recommended',
-            description: 'Annual booster shot recommended'
-        },
-        {
-            id: 2,
-            vaccine: 'Influenza (Flu Shot)',
-            dueDate: '2024-10-20',
-            priority: 'Due Soon',
-            description: 'Annual flu vaccination'
+            vaccine: 'Annual Flu Shot',
+            scheduledDate: '2024-12-15',
+            provider: 'HealthCare Pharmacy',
+            status: 'scheduled'
         }
     ];
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
     const getStatusColor = (status) => {
         switch (status) {
-            case 'Completed': return '#16A34A';
-            case 'Pending': return '#F59E0B';
-            case 'Overdue': return '#EF4444';
-            default: return theme.colors.subtext;
+            case 'completed':
+                return '#16A34A';
+            case 'scheduled':
+                return '#F59E0B';
+            case 'overdue':
+                return '#DC2626';
+            default:
+                return theme.colors.subtext;
         }
     };
 
-    const getPriorityColor = (priority) => {
-        switch (priority) {
-            case 'Due Soon': return '#EF4444';
-            case 'Recommended': return '#F59E0B';
-            case 'Optional': return '#6B7280';
-            default: return theme.colors.subtext;
+    const getStatusIcon = (status) => {
+        switch (status) {
+            case 'completed':
+                return 'checkmark-circle';
+            case 'scheduled':
+                return 'time';
+            case 'overdue':
+                return 'warning';
+            default:
+                return 'help-circle';
         }
     };
 
-    const handleViewCertificate = (record) => {
-        setSelectedRecord(record);
-        setShowCertificate(true);
-    };
-
-    const handleDownloadCertificate = (record) => {
-        Alert.alert(
-            'Download Certificate',
-            `Download vaccination certificate for ${record.vaccine}?`,
-            [
-                { text: 'Cancel', style: 'cancel' },
-                { 
-                    text: 'Download', 
-                    onPress: () => {
-                        Alert.alert('Success', 'Certificate downloaded to your device');
-                    }
-                }
-            ]
-        );
-    };
-
-    const renderVaccinationRecord = ({ item }) => (
-        <View style={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: 12,
-            padding: 16,
-            marginBottom: 12,
-            elevation: 2,
-            shadowColor: '#000',
-            shadowOpacity: 0.1,
-            shadowOffset: { width: 0, height: 2 },
-            shadowRadius: 4,
-        }}>
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                marginBottom: 12
-            }}>
-                <View style={{ flex: 1 }}>
-                    <Text style={{
-                        fontSize: 16,
-                        fontWeight: '600',
-                        color: theme.colors.text,
-                        marginBottom: 4
-                    }}>
-                        {item.vaccine}
-                    </Text>
-                    <Text style={{
-                        fontSize: 14,
-                        color: theme.colors.subtext,
-                        marginBottom: 2
-                    }}>
-                        {item.doseNumber} • {item.date}
-                    </Text>
-                    <Text style={{
-                        fontSize: 14,
-                        color: theme.colors.subtext
-                    }}>
-                        {item.location}
-                    </Text>
-                </View>
-                <View style={{
-                    backgroundColor: getStatusColor(item.status) + '20',
-                    paddingHorizontal: 8,
-                    paddingVertical: 4,
-                    borderRadius: 6
-                }}>
-                    <Text style={{
-                        fontSize: 12,
-                        fontWeight: '600',
-                        color: getStatusColor(item.status)
-                    }}>
-                        {item.status}
-                    </Text>
-                </View>
-            </View>
-
-            <View style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 12
-            }}>
-                <Icon name="person" size={16} color={theme.colors.subtext} />
-                <Text style={{
-                    fontSize: 14,
-                    color: theme.colors.subtext,
-                    marginLeft: 8
-                }}>
-                    Administered by: {item.administrator}
-                </Text>
-            </View>
-
-            {item.nextDue !== 'N/A' && (
-                <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginBottom: 12
-                }}>
-                    <Icon name="calendar" size={16} color={theme.colors.primary} />
-                    <Text style={{
-                        fontSize: 14,
-                        color: theme.colors.primary,
-                        marginLeft: 8,
-                        fontWeight: '500'
-                    }}>
-                        Next due: {item.nextDue}
-                    </Text>
-                </View>
-            )}
-
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingTop: 12,
-                borderTopWidth: 1,
-                borderTopColor: '#F3F4F6'
-            }}>
-                <TouchableOpacity
-                    onPress={() => handleViewCertificate(item)}
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingVertical: 8,
-                        paddingHorizontal: 12,
-                        backgroundColor: theme.colors.primary + '10',
-                        borderRadius: 8
-                    }}
-                >
-                    <Icon name="document-text" size={16} color={theme.colors.primary} />
-                    <Text style={{
-                        fontSize: 14,
-                        color: theme.colors.primary,
-                        fontWeight: '600',
-                        marginLeft: 6
-                    }}>
-                        View Certificate
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    onPress={() => handleDownloadCertificate(item)}
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingVertical: 8,
-                        paddingHorizontal: 12,
-                        backgroundColor: '#F3F4F6',
-                        borderRadius: 8
-                    }}
-                >
-                    <Icon name="download" size={16} color={theme.colors.subtext} />
-                    <Text style={{
-                        fontSize: 14,
-                        color: theme.colors.subtext,
-                        fontWeight: '600',
-                        marginLeft: 6
-                    }}>
-                        Download
-                    </Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
-
-    const renderUpcomingVaccination = ({ item }) => (
+    const VaccinationCard = ({ vaccination, isUpcoming = false }) => (
         <View style={{
             backgroundColor: '#FFFFFF',
             borderRadius: 12,
@@ -297,73 +110,130 @@ const VaccinationRecordsPage = () => {
             shadowOffset: { width: 0, height: 2 },
             shadowRadius: 4,
             borderLeftWidth: 4,
-            borderLeftColor: getPriorityColor(item.priority)
+            borderLeftColor: getStatusColor(vaccination.status)
         }}>
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'flex-start',
-                marginBottom: 8
+                marginBottom: 12
             }}>
                 <View style={{ flex: 1 }}>
                     <Text style={{
                         fontSize: 16,
-                        fontWeight: '600',
+                        fontWeight: 'bold',
                         color: theme.colors.text,
                         marginBottom: 4
                     }}>
-                        {item.vaccine}
+                        {vaccination.vaccine}
                     </Text>
                     <Text style={{
                         fontSize: 14,
                         color: theme.colors.subtext,
-                        marginBottom: 4
+                        marginBottom: 8
                     }}>
-                        {item.description}
-                    </Text>
-                    <Text style={{
-                        fontSize: 14,
-                        color: theme.colors.primary,
-                        fontWeight: '500'
-                    }}>
-                        Due: {item.dueDate}
+                        {isUpcoming ? formatDate(vaccination.scheduledDate) : formatDate(vaccination.date)}
                     </Text>
                 </View>
+                
                 <View style={{
-                    backgroundColor: getPriorityColor(item.priority) + '20',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: getStatusColor(vaccination.status) + '15',
                     paddingHorizontal: 8,
                     paddingVertical: 4,
-                    borderRadius: 6
+                    borderRadius: 12
                 }}>
+                    <Icon 
+                        name={getStatusIcon(vaccination.status)} 
+                        size={16} 
+                        color={getStatusColor(vaccination.status)}
+                        style={{ marginRight: 4 }}
+                    />
                     <Text style={{
                         fontSize: 12,
                         fontWeight: '600',
-                        color: getPriorityColor(item.priority)
+                        color: getStatusColor(vaccination.status),
+                        textTransform: 'capitalize'
                     }}>
-                        {item.priority}
+                        {vaccination.status}
                     </Text>
                 </View>
             </View>
 
-            <TouchableOpacity
-                style={{
-                    backgroundColor: theme.colors.primary,
-                    paddingVertical: 10,
-                    paddingHorizontal: 16,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                    marginTop: 8
-                }}
-                onPress={() => Alert.alert('Schedule Vaccination', 'This feature will redirect you to booking system.')}
-            >
+            <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginBottom: 8
+            }}>
+                <Icon name="business" size={16} color={theme.colors.subtext} style={{ marginRight: 8 }} />
                 <Text style={{
-                    color: '#FFFFFF',
-                    fontWeight: '600',
-                    fontSize: 14
+                    fontSize: 14,
+                    color: theme.colors.subtext
                 }}>
-                    Schedule Appointment
+                    {vaccination.provider}
                 </Text>
-            </TouchableOpacity>
+            </View>
+
+            {!isUpcoming && vaccination.batchNumber && (
+                <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 8
+                }}>
+                    <Icon name="barcode" size={16} color={theme.colors.subtext} style={{ marginRight: 8 }} />
+                    <Text style={{
+                        fontSize: 14,
+                        color: theme.colors.subtext
+                    }}>
+                        Batch: {vaccination.batchNumber}
+                    </Text>
+                </View>
+            )}
+
+            {vaccination.nextDue && (
+                <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 8
+                }}>
+                    <Icon name="calendar" size={16} color={theme.colors.subtext} style={{ marginRight: 8 }} />
+                    <Text style={{
+                        fontSize: 14,
+                        color: theme.colors.subtext
+                    }}>
+                        Next due: {formatDate(vaccination.nextDue)}
+                    </Text>
+                </View>
+            )}
+
+            {!isUpcoming && vaccination.certificate && (
+                <TouchableOpacity
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: 12,
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        backgroundColor: theme.colors.primary + '10',
+                        borderRadius: 8,
+                        alignSelf: 'flex-start'
+                    }}
+                    onPress={() => {
+                        // Handle certificate download/view
+                        alert('Certificate feature coming soon!');
+                    }}
+                >
+                    <MaterialIcons name="file-download" size={16} color={theme.colors.primary} style={{ marginRight: 6 }} />
+                    <Text style={{
+                        fontSize: 14,
+                        fontWeight: '600',
+                        color: theme.colors.primary
+                    }}>
+                        Download Certificate
+                    </Text>
+                </TouchableOpacity>
+            )}
         </View>
     );
 
@@ -385,345 +255,217 @@ const VaccinationRecordsPage = () => {
                 </View>
 
                 <TouchableOpacity
-                    onPress={() => Alert.alert('Add Record', 'This feature will allow you to add new vaccination records.')}
+                    onPress={() => router.push('/vaccination-booking')}
                     style={{
-                        paddingHorizontal: 12,
-                        paddingVertical: 6,
-                        borderRadius: 6,
-                        backgroundColor: theme.colors.primary + '10'
+                        paddingHorizontal: 16,
+                        paddingVertical: 8,
+                        borderRadius: 8,
+                        backgroundColor: '#8B5CF6'
                     }}
                 >
-                    <Icon name="add" size={20} color={theme.colors.primary} />
+                    <Text style={{
+                        color: '#FFFFFF',
+                        fontWeight: '600',
+                        fontSize: 14
+                    }}>
+                        Book New
+                    </Text>
                 </TouchableOpacity>
             </View>
 
-            <FlatList
-                data={[]}
-                keyExtractor={() => 'empty'}
-                ListHeaderComponent={
-                    <View style={{ padding: 16 }}>
-                        {/* Summary Card */}
-                        <View style={{
-                            backgroundColor: '#FFFFFF',
-                            borderRadius: 16,
-                            padding: 20,
-                            marginBottom: 24,
-                            elevation: 2,
-                            shadowColor: '#000',
-                            shadowOpacity: 0.1,
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowRadius: 4,
+            <ScrollView 
+                style={{ flex: 1 }}
+                contentContainerStyle={{ padding: 16 }}
+                showsVerticalScrollIndicator={false}
+            >
+                {/* Summary Stats */}
+                <View style={{
+                    flexDirection: 'row',
+                    marginBottom: 24
+                }}>
+                    <View style={{
+                        flex: 1,
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: 12,
+                        padding: 16,
+                        marginRight: 8,
+                        alignItems: 'center',
+                        elevation: 2,
+                        shadowColor: '#000',
+                        shadowOpacity: 0.1,
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowRadius: 4,
+                    }}>
+                        <Text style={{
+                            fontSize: 24,
+                            fontWeight: 'bold',
+                            color: '#16A34A',
+                            marginBottom: 4
                         }}>
-                            <View style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                marginBottom: 16
-                            }}>
-                                <View style={{
-                                    width: 48,
-                                    height: 48,
-                                    borderRadius: 24,
-                                    backgroundColor: '#E8F5E8',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginRight: 16
-                                }}>
-                                    <Icon name="shield-checkmark" size={24} color="#16A34A" />
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{
-                                        fontSize: 18,
-                                        fontWeight: 'bold',
-                                        color: theme.colors.text,
-                                        marginBottom: 4
-                                    }}>
-                                        Vaccination Summary
-                                    </Text>
-                                    <Text style={{
-                                        fontSize: 14,
-                                        color: theme.colors.subtext
-                                    }}>
-                                        Your immunization status
-                                    </Text>
-                                </View>
-                            </View>
+                            {vaccinationHistory.filter(v => v.status === 'completed').length}
+                        </Text>
+                        <Text style={{
+                            fontSize: 12,
+                            color: theme.colors.subtext,
+                            textAlign: 'center'
+                        }}>
+                            Completed
+                        </Text>
+                    </View>
+                    
+                    <View style={{
+                        flex: 1,
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: 12,
+                        padding: 16,
+                        marginLeft: 8,
+                        alignItems: 'center',
+                        elevation: 2,
+                        shadowColor: '#000',
+                        shadowOpacity: 0.1,
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowRadius: 4,
+                    }}>
+                        <Text style={{
+                            fontSize: 24,
+                            fontWeight: 'bold',
+                            color: '#F59E0B',
+                            marginBottom: 4
+                        }}>
+                            {upcomingVaccinations.length}
+                        </Text>
+                        <Text style={{
+                            fontSize: 12,
+                            color: theme.colors.subtext,
+                            textAlign: 'center'
+                        }}>
+                            Upcoming
+                        </Text>
+                    </View>
+                </View>
 
-                            <View style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-around',
-                                paddingTop: 16,
-                                borderTopWidth: 1,
-                                borderTopColor: '#F3F4F6'
-                            }}>
-                                <View style={{ alignItems: 'center' }}>
-                                    <Text style={{
-                                        fontSize: 24,
-                                        fontWeight: 'bold',
-                                        color: '#16A34A'
-                                    }}>
-                                        {vaccinationRecords.length}
-                                    </Text>
-                                    <Text style={{
-                                        fontSize: 12,
-                                        color: theme.colors.subtext,
-                                        textAlign: 'center'
-                                    }}>
-                                        Total{'\n'}Vaccinations
-                                    </Text>
-                                </View>
-                                <View style={{ alignItems: 'center' }}>
-                                    <Text style={{
-                                        fontSize: 24,
-                                        fontWeight: 'bold',
-                                        color: '#F59E0B'
-                                    }}>
-                                        {upcomingVaccinations.length}
-                                    </Text>
-                                    <Text style={{
-                                        fontSize: 12,
-                                        color: theme.colors.subtext,
-                                        textAlign: 'center'
-                                    }}>
-                                        Upcoming{'\n'}Due
-                                    </Text>
-                                </View>
-                                <View style={{ alignItems: 'center' }}>
-                                    <Text style={{
-                                        fontSize: 24,
-                                        fontWeight: 'bold',
-                                        color: '#3B82F6'
-                                    }}>
-                                        100%
-                                    </Text>
-                                    <Text style={{
-                                        fontSize: 12,
-                                        color: theme.colors.subtext,
-                                        textAlign: 'center'
-                                    }}>
-                                        Compliance{'\n'}Rate
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-
-                        {/* Upcoming Vaccinations */}
-                        {upcomingVaccinations.length > 0 && (
-                            <>
-                                <Text style={{
-                                    fontSize: 18,
-                                    fontWeight: 'bold',
-                                    color: theme.colors.text,
-                                    marginBottom: 16
-                                }}>
-                                    Upcoming Vaccinations
-                                </Text>
-                                <FlatList
-                                    data={upcomingVaccinations}
-                                    keyExtractor={(item) => item.id.toString()}
-                                    renderItem={renderUpcomingVaccination}
-                                    scrollEnabled={false}
-                                    style={{ marginBottom: 24 }}
-                                />
-                            </>
-                        )}
-
-                        {/* Vaccination History */}
+                {/* Upcoming Vaccinations */}
+                {upcomingVaccinations.length > 0 && (
+                    <>
                         <Text style={{
                             fontSize: 18,
                             fontWeight: 'bold',
                             color: theme.colors.text,
-                            marginBottom: 16
+                            marginBottom: 16,
+                            marginLeft: 4
                         }}>
-                            Vaccination History
+                            Upcoming Vaccinations
                         </Text>
-                        <FlatList
-                            data={vaccinationRecords}
-                            keyExtractor={(item) => item.id.toString()}
-                            renderItem={renderVaccinationRecord}
-                            scrollEnabled={false}
-                        />
-                    </View>
-                }
-                showsVerticalScrollIndicator={false}
-                renderItem={undefined}
-            />
 
-            {/* Certificate Modal */}
-            <Modal
-                visible={showCertificate}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setShowCertificate(false)}
-            >
-                <View style={{
-                    flex: 1,
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    padding: 20
+                        {upcomingVaccinations.map((vaccination) => (
+                            <VaccinationCard 
+                                key={vaccination.id} 
+                                vaccination={vaccination} 
+                                isUpcoming={true}
+                            />
+                        ))}
+                    </>
+                )}
+
+                {/* Vaccination History */}
+                <Text style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    color: theme.colors.text,
+                    marginBottom: 16,
+                    marginTop: upcomingVaccinations.length > 0 ? 24 : 0,
+                    marginLeft: 4
                 }}>
-                    <View style={{
-                        backgroundColor: '#FFFFFF',
-                        borderRadius: 16,
-                        padding: 24,
-                        width: '100%',
-                        maxHeight: '83%'
+                    Vaccination History
+                </Text>
+
+                {vaccinationHistory.map((vaccination) => (
+                    <VaccinationCard key={vaccination.id} vaccination={vaccination} />
+                ))}
+
+                {/* Quick Actions */}
+                <View style={{
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: 12,
+                    padding: 20,
+                    marginTop: 16,
+                    elevation: 2,
+                    shadowColor: '#000',
+                    shadowOpacity: 0.1,
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowRadius: 4,
+                }}>
+                    <Text style={{
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        color: theme.colors.text,
+                        marginBottom: 16
                     }}>
-                        <View style={{
+                        Quick Actions
+                    </Text>
+
+                    <TouchableOpacity
+                        onPress={() => router.push('/vaccination-booking')}
+                        style={{
                             flexDirection: 'row',
-                            justifyContent: 'space-between',
                             alignItems: 'center',
-                            marginBottom: 20
+                            paddingVertical: 12,
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#F3F4F6'
+                        }}
+                    >
+                        <Icon name="add-circle" size={24} color="#8B5CF6" style={{ marginRight: 12 }} />
+                        <Text style={{
+                            fontSize: 16,
+                            color: theme.colors.text,
+                            flex: 1
                         }}>
-                            <Text style={{
-                                fontSize: 20,
-                                fontWeight: 'bold',
-                                color: theme.colors.text
-                            }}>
-                                Vaccination Certificate
-                            </Text>
-                            <TouchableOpacity
-                                onPress={() => setShowCertificate(false)}
-                                style={{
-                                    padding: 8,
-                                    borderRadius: 8,
-                                    backgroundColor: '#F3F4F6'
-                                }}
-                            >
-                                <Icon name="close" size={20} color={theme.colors.subtext} />
-                            </TouchableOpacity>
-                        </View>
+                            Book New Vaccination
+                        </Text>
+                        <Icon name="chevron-forward" size={20} color={theme.colors.subtext} />
+                    </TouchableOpacity>
 
-                        {selectedRecord && (
-                            <ScrollView showsVerticalScrollIndicator={false}>
-                                <View style={{
-                                    borderWidth: 2,
-                                    borderColor: theme.colors.primary,
-                                    borderRadius: 12,
-                                    padding: 20,
-                                    marginBottom: 20
-                                }}>
-                                    <Text style={{
-                                        fontSize: 18,
-                                        fontWeight: 'bold',
-                                        color: theme.colors.primary,
-                                        textAlign: 'center',
-                                        marginBottom: 16
-                                    }}>
-                                        VACCINATION CERTIFICATE
-                                    </Text>
+                    <TouchableOpacity
+                        onPress={() => router.push('/(tabs)/vaccination')}
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            paddingVertical: 12,
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#F3F4F6'
+                        }}
+                    >
+                        <Icon name="calendar" size={24} color="#8B5CF6" style={{ marginRight: 12 }} />
+                        <Text style={{
+                            fontSize: 16,
+                            color: theme.colors.text,
+                            flex: 1
+                        }}>
+                            View Vaccination Calendar
+                        </Text>
+                        <Icon name="chevron-forward" size={20} color={theme.colors.subtext} />
+                    </TouchableOpacity>
 
-                                    <View style={{ marginBottom: 12 }}>
-                                        <Text style={{ fontSize: 14, color: theme.colors.subtext, marginBottom: 4 }}>
-                                            Certificate ID
-                                        </Text>
-                                        <Text style={{ fontSize: 16, fontWeight: '600', color: theme.colors.text }}>
-                                            {selectedRecord.certificateId}
-                                        </Text>
-                                    </View>
-
-                                    <View style={{ marginBottom: 12 }}>
-                                        <Text style={{ fontSize: 14, color: theme.colors.subtext, marginBottom: 4 }}>
-                                            Patient Name
-                                        </Text>
-                                        <Text style={{ fontSize: 16, fontWeight: '600', color: theme.colors.text }}>
-                                            John Doe
-                                        </Text>
-                                    </View>
-
-                                    <View style={{ marginBottom: 12 }}>
-                                        <Text style={{ fontSize: 14, color: theme.colors.subtext, marginBottom: 4 }}>
-                                            Vaccine
-                                        </Text>
-                                        <Text style={{ fontSize: 16, fontWeight: '600', color: theme.colors.text }}>
-                                            {selectedRecord.vaccine}
-                                        </Text>
-                                    </View>
-
-                                    <View style={{ marginBottom: 12 }}>
-                                        <Text style={{ fontSize: 14, color: theme.colors.subtext, marginBottom: 4 }}>
-                                            Dose Number
-                                        </Text>
-                                        <Text style={{ fontSize: 16, fontWeight: '600', color: theme.colors.text }}>
-                                            {selectedRecord.doseNumber}
-                                        </Text>
-                                    </View>
-
-                                    <View style={{ marginBottom: 12 }}>
-                                        <Text style={{ fontSize: 14, color: theme.colors.subtext, marginBottom: 4 }}>
-                                            Date Administered
-                                        </Text>
-                                        <Text style={{ fontSize: 16, fontWeight: '600', color: theme.colors.text }}>
-                                            {selectedRecord.date}
-                                        </Text>
-                                    </View>
-
-                                    <View style={{ marginBottom: 12 }}>
-                                        <Text style={{ fontSize: 14, color: theme.colors.subtext, marginBottom: 4 }}>
-                                            Location
-                                        </Text>
-                                        <Text style={{ fontSize: 16, fontWeight: '600', color: theme.colors.text }}>
-                                            {selectedRecord.location}
-                                        </Text>
-                                    </View>
-
-                                    <View style={{ marginBottom: 12 }}>
-                                        <Text style={{ fontSize: 14, color: theme.colors.subtext, marginBottom: 4 }}>
-                                            Administrator
-                                        </Text>
-                                        <Text style={{ fontSize: 16, fontWeight: '600', color: theme.colors.text }}>
-                                            {selectedRecord.administrator}
-                                        </Text>
-                                    </View>
-
-                                    <View style={{ marginBottom: 12 }}>
-                                        <Text style={{ fontSize: 14, color: theme.colors.subtext, marginBottom: 4 }}>
-                                            Batch Number
-                                        </Text>
-                                        <Text style={{ fontSize: 16, fontWeight: '600', color: theme.colors.text }}>
-                                            {selectedRecord.batchNumber}
-                                        </Text>
-                                    </View>
-
-                                    <View style={{
-                                        borderTopWidth: 1,
-                                        borderTopColor: '#F3F4F6',
-                                        paddingTop: 16,
-                                        marginTop: 16
-                                    }}>
-                                        <Text style={{
-                                            fontSize: 12,
-                                            color: theme.colors.subtext,
-                                            textAlign: 'center'
-                                        }}>
-                                            This certificate is digitally verified and valid for official use.
-                                        </Text>
-                                    </View>
-                                </View>
-
-                                <TouchableOpacity
-                                    onPress={() => handleDownloadCertificate(selectedRecord)}
-                                    style={{
-                                        backgroundColor: theme.colors.primary,
-                                        paddingVertical: 12,
-                                        paddingHorizontal: 24,
-                                        borderRadius: 8,
-                                        alignItems: 'center'
-                                    }}
-                                >
-                                    <Text style={{
-                                        color: '#FFFFFF',
-                                        fontWeight: '600',
-                                        fontSize: 16
-                                    }}>
-                                        Download Certificate
-                                    </Text>
-                                </TouchableOpacity>
-                            </ScrollView>
-                        )}
-                    </View>
+                    <TouchableOpacity
+                        onPress={() => alert('Feature coming soon!')}
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            paddingVertical: 12
+                        }}
+                    >
+                        <Icon name="download" size={24} color="#8B5CF6" style={{ marginRight: 12 }} />
+                        <Text style={{
+                            fontSize: 16,
+                            color: theme.colors.text,
+                            flex: 1
+                        }}>
+                            Download All Certificates
+                        </Text>
+                        <Icon name="chevron-forward" size={20} color={theme.colors.subtext} />
+                    </TouchableOpacity>
                 </View>
-            </Modal>
+            </ScrollView>
         </SafeAreaView>
     );
 };

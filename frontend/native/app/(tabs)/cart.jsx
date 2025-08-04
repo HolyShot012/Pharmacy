@@ -22,6 +22,9 @@ const CartPage = () => {
     const handleViewAllCart = () => {
         router.push('/full-cart');
     };
+    const setActiveTab = (tab) => {
+        router.push(tab)
+    }
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -184,7 +187,7 @@ const CartPage = () => {
                             Add some products to get started
                         </Text>
                         <TouchableOpacity
-                            // onPress={() => setActiveTab('products')}
+                            onPress={() => setActiveTab('/products')}
                             style={{
                                 backgroundColor: theme.colors.primary,
                                 paddingHorizontal: 32,

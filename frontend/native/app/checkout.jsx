@@ -1,7 +1,8 @@
 import { AntDesign } from '@expo/vector-icons';
-import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useCart } from '../components/CartContext';
+import { useAuth } from '../components/AuthContext';
 import { styles } from '../components/ui/Styles';
 import { theme } from '../components/ui/Theme';
 import { useRouter } from 'expo-router';
@@ -9,8 +10,10 @@ import { useState } from 'react';
 
 const CheckoutPage = () => {
     const { cartItems, clearCart } = useCart();
+    const { user } = useAuth();
     const router = useRouter();
     const [selectedPayment, setSelectedPayment] = useState('card');
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
     
     const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const deliveryFee = 2.50;
@@ -25,19 +28,13 @@ const CheckoutPage = () => {
     ];
 
     const handlePlaceOrder = () => {
-        Alert.alert(
-            'Order Placed Successfully!',
-            `Your order has been placed and will be delivered soon. Payment method: ${paymentMethods.find(p => p.id === selectedPayment)?.name}`,
-            [
-                {
-                    text: 'OK',
-                    onPress: () => {
-                        clearCart();
-                        router.push('/(tabs)/');
-                    }
-                }
-            ]
-        );
+        setShowSuccessModal(true);
+    };
+
+    const handleSuccessModalClose = () => {
+        setShowSuccessModal(false);
+        clearCart();
+        router.push('/(tabs)/products/');
     };
 
     if (cartItems.length === 0) {
@@ -172,15 +169,19 @@ const CheckoutPage = () => {
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.sm }}>
                         <MaterialIcons name="location-on" size={20} color={theme.colors.primary} />
                         <Text style={{ marginLeft: theme.spacing.sm, color: theme.colors.text, flex: 1 }}>
-                            123 Main St, New York, NY 10001
+                            {user?.current_address || 'No address available'}
+                            {user?.city && `, ${user.city}`}
+                            {user?.province && `, ${user.province}`}
                         </Text>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <MaterialIcons name="access-time" size={20} color={theme.colors.primary} />
-                        <Text style={{ marginLeft: theme.spacing.sm, color: theme.colors.text }}>
-                            Estimated delivery: 30-45 minutes
-                        </Text>
-                    </View>
+                    {user?.phone_number && (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.sm }}>
+                            <MaterialIcons name="phone" size={20} color={theme.colors.primary} />
+                            <Text style={{ marginLeft: theme.spacing.sm, color: theme.colors.text, flex: 1 }}>
+                                {user.phone_number}
+                            </Text>
+                        </View>
+                    )}
                 </View>
             </ScrollView>
 
@@ -203,6 +204,92 @@ const CheckoutPage = () => {
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Success Modal */}
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={showSuccessModal}
+                onRequestClose={() => setShowSuccessModal(false)}
+            >
+                <View style={{
+                    flex: 1,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: theme.spacing.md
+                }}>
+                    <View style={{
+                        backgroundColor: theme.colors.white,
+                        borderRadius: 16,
+                        padding: theme.spacing.lg,
+                        width: '90%',
+                        maxWidth: 400,
+                        alignItems: 'center'
+                    }}>
+                        <View style={{
+                            width: 80,
+                            height: 80,
+                            backgroundColor: '#4CAF50',
+                            borderRadius: 40,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginBottom: theme.spacing.md
+                        }}>
+                            <MaterialIcons name="check" size={48} color={theme.colors.white} />
+                        </View>
+                        
+                        <Text style={{
+                            fontSize: 24,
+                            fontWeight: 'bold',
+                            color: theme.colors.text,
+                            textAlign: 'center',
+                            marginBottom: theme.spacing.sm
+                        }}>
+                            Order Successful!
+                        </Text>
+                        
+                        <Text style={{
+                            fontSize: 16,
+                            color: theme.colors.subtext,
+                            textAlign: 'center',
+                            marginBottom: theme.spacing.md,
+                            lineHeight: 24
+                        }}>
+                            Your order has been placed successfully and will be delivered soon.
+                        </Text>
+                        
+                        <Text style={{
+                            fontSize: 14,
+                            color: theme.colors.subtext,
+                            textAlign: 'center',
+                            marginBottom: theme.spacing.lg
+                        }}>
+                            Payment method: {paymentMethods.find(p => p.id === selectedPayment)?.name}
+                        </Text>
+                        
+                        <TouchableOpacity
+                            onPress={handleSuccessModalClose}
+                            style={{
+                                backgroundColor: theme.colors.primary,
+                                paddingVertical: 14,
+                                paddingHorizontal: 32,
+                                borderRadius: 8,
+                                width: '100%'
+                            }}
+                        >
+                            <Text style={{
+                                color: theme.colors.white,
+                                fontWeight: 'bold',
+                                fontSize: 16,
+                                textAlign: 'center'
+                            }}>
+                                Continue Shopping
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
