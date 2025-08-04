@@ -29,12 +29,10 @@ const offers = [
 ];
 
 const categories = [
-    { id: 1, name: 'Pain Relief', icon: '💊', color: '#fee2e2' },
-    { id: 2, name: 'Vitamins', icon: '🧪', color: '#d1fae5' },
-    { id: 3, name: 'Personal Care', icon: '🧴', color: '#dbeafe' },
-    { id: 4, name: 'Baby Care', icon: '🍼', color: '#fce7f3' },
-    { id: 5, name: 'First Aid', icon: '🩹', color: '#ffedd5' },
-    { id: 6, name: 'Prescription', icon: '📋', color: '#ede9fe' },
+    { id: 1, name: 'Medicines', icon: '💊', color: '#fee2e2' },
+    { id: 2, name: 'Medical Equipments', icon: '🩺', color: '#d1fae5' },
+    { id: 3, name: 'Cosmeceuticals', icon: '🧴', color: '#dbeafe' },
+    { id: 4, name: 'Selfcare', icon: '🧘‍♀️', color: '#fce7f3' },
 ];
 
 const nearbyPharmacies = [
@@ -269,7 +267,11 @@ const HomePage = () => {
     };
 
     const handleCategoryPress = (category) => {
-        router.push('/products');
+        // Navigate to products page with category parameter
+        router.push({
+            pathname: '/products',
+            params: { category: category.name }
+        });
         console.log(`Navigating to ${category.name} category`);
     };
 
@@ -342,7 +344,7 @@ const HomePage = () => {
                         </View>
                     </View>
 
-                    {/* Logout Modal */}
+                    {/* User Menu Modal */}
                     <Modal
                         visible={showLogout}
                         transparent
@@ -356,20 +358,53 @@ const HomePage = () => {
                                 right: 24,
                                 backgroundColor: '#FFF',
                                 borderRadius: 12,
-                                padding: 20,
+                                padding: 0,
                                 elevation: 8,
                                 shadowColor: '#000',
                                 shadowOpacity: 0.2,
                                 shadowOffset: { width: 0, height: 4 },
                                 shadowRadius: 8,
-                                minWidth: 120
+                                minWidth: 160
                             }}>
+                                {/* Profile Button */}
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setShowLogout(false);
+                                        router.push('/profile');
+                                    }}
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        paddingHorizontal: 20,
+                                        paddingVertical: 16,
+                                        borderBottomWidth: 1,
+                                        borderBottomColor: '#F3F4F6'
+                                    }}
+                                >
+                                    <Icon
+                                        name="person-outline"
+                                        size={18}
+                                        color={theme.colors.primary}
+                                        style={{ marginRight: 12 }}
+                                    />
+                                    <Text style={{
+                                        color: theme.colors.text,
+                                        fontWeight: '600',
+                                        fontSize: 16
+                                    }}>
+                                        Profile
+                                    </Text>
+                                </TouchableOpacity>
+
+                                {/* Logout Button */}
                                 <TouchableOpacity
                                     onPress={handleLogout}
                                     disabled={isLoggingOut}
                                     style={{
                                         flexDirection: 'row',
                                         alignItems: 'center',
+                                        paddingHorizontal: 20,
+                                        paddingVertical: 16,
                                         opacity: isLoggingOut ? 0.6 : 1
                                     }}
                                 >
@@ -377,11 +412,11 @@ const HomePage = () => {
                                         name="log-out-outline"
                                         size={18}
                                         color="#EF4444"
-                                        style={{ marginRight: 8 }}
+                                        style={{ marginRight: 12 }}
                                     />
                                     <Text style={{
                                         color: '#EF4444',
-                                        fontWeight: 'bold',
+                                        fontWeight: '600',
                                         fontSize: 16
                                     }}>
                                         {isLoggingOut ? 'Logging out...' : 'Log out'}
@@ -698,8 +733,8 @@ const HomePage = () => {
                                 <TouchableOpacity
                                     key={service.id}
                                     style={[styles.serviceButton, idx !== services.length - 1 && { marginRight: theme.spacing.sm }]}
-                                    onPress={() => handleServicePress(service.name)}
-                                >
+                                    onPress={() => router.push('/coming-soon')}
+                                    >
                                     <View style={[styles.serviceIcon, { backgroundColor: service.color }]}>
                                         <service.icon name={service.iconName} size={24} color={theme.colors.white} />
                                     </View>
@@ -750,7 +785,7 @@ const HomePage = () => {
                                     <Text style={styles.categoryText}>{item.name}</Text>
                                 </TouchableOpacity>
                             )}
-                            numColumns={3}
+                            numColumns={2}
                             columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: theme.spacing.sm }}
                             scrollEnabled={false} />
                     </View>
