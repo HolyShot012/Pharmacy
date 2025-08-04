@@ -1,8 +1,8 @@
 {
   "scripts": {
-    "install-frontend": "cd frontend/native && npm íntall",
+    "postinstall": "cd frontend/native && npm íntall",
     "start-frontend": "cd frontend/native && npx expo start --tunnel --clear",
-    "start-backend": "start cmd /k \"cd backend/pharmacy && python manage.py runserver\"",
+    "start-backend": "cd backend/pharmacy && python manage.py runserver",
     "start": "npm run start-frontend && npm run start-backend"
   },
   "devDependencies": {
