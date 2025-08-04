@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.1.45:8000'; // Replace with your Supabase or production URL (e.g., https://your-supabase-url)
+const API_URL = 'http://192.168.1.37:8000'; // Replace with your Supabase or production URL (e.g., https://your-supabase-url)
 
 const api = axios.create({
     baseURL: API_URL,
@@ -170,6 +170,69 @@ export const updateProfile = async (profileData) => {
         return response.data;
     } catch (error) {
         throw error.response?.data || { error: 'Profile update failed' };
+    }
+};
+
+export const getProducts = async (page = 1, pageSize = 10) => {
+    try {
+        const response = await api.get('/api/products', {
+            params: {
+                page,
+                page_size: pageSize,
+            },
+
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching products:', error.response?.data || error.message);
+        throw error;
+    }
+};
+
+export const createOrder = async (orderData) => {
+    try {
+        const accessToken = await getAccessToken();
+
+        if (!accessToken) {
+            throw { error: 'No access token available' };
+        }
+
+        const response = await api.post('/api/users/orders/create', orderData, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error creating order:', error.response?.data || error.message);
+        throw error.response?.data || { error: 'Failed to create order' };
+    }
+};
+
+export const getOrders = async (page = 1, pageSize = 3) => {
+    try {
+        const accessToken = await getAccessToken();
+
+        if (!accessToken) {
+            throw { error: 'No access token available' };
+        }
+
+        const response = await api.get('/api/users/order/details', {
+            params: {
+                page,
+                page_size: pageSize,
+            },
+
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching orders:', error.response?.data || error.message);
+        throw error.response?.data || { error: 'Failed to fetch orders' };
     }
 };
 

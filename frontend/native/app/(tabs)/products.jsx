@@ -8,6 +8,7 @@ import { useFavorites } from '../../components/FavoritesContext';
 import { styles } from '../../components/ui/Styles';
 import { theme } from '../../components/ui/Theme';
 import { useLocalSearchParams } from 'expo-router';
+import { getProducts } from '../api.jsx'
 
 const FILTER_BUTTON_HEIGHT = 36;
 
@@ -17,7 +18,8 @@ const ProductPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const params = useLocalSearchParams();
-  
+  const [products, setProducts] = useState([]); // State for fetched products
+
   // Filter modal state
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filters, setFilters] = useState({
@@ -33,305 +35,80 @@ const ProductPage = () => {
   const itemsPerPage = 10;
 
   const categories = [
+<<<<<<< HEAD
+    { id: 1, name: 'Medicine', icon: '💊', color: '#fee2e2' },
+    { id: 2, name: 'Medical Equipment', icon: '🩺', color: '#d1fae5' },
+    { id: 3, name: 'Cosmetic', icon: '🧴', color: '#dbeafe' },
+    { id: 4, name: 'Supplement', icon: '🧘‍♀️', color: '#fce7f3' },
+=======
     { id: 1, name: 'Medicines', icon: '💊', color: '#fee2e2' },
-    { id: 2, name: 'Medical Equipments', icon: '🩺', color: '#d1fae5' },
-    { id: 3, name: 'Cosmeceuticals', icon: '🧴', color: '#dbeafe' },
+    { id: 2, name: 'Medical Equipment', icon: '🩺', color: '#d1fae5' },
+    { id: 3, name: 'Cosmetic', icon: '🧴', color: '#dbeafe' },
     { id: 4, name: 'Selfcare', icon: '🧘‍♀️', color: '#fce7f3' },
-  ];
 
-  const featuredProducts = [
-    {
-      product_id: 1,
-      name: 'Paracetamol 500mg',
-      category: 'Medicines',
-      price: 25.50,
-      quantity: 100,
-      manufacturer: 'PharmaCorp',
-      prescription: 'Not Required',
-      class_level: 1,
-      need_approval: false,
-      expiration_date: '2025-12-31',
-      image: '💊',
-      rating: 4.5,
-      originalPrice: 30.00,
-      discount: 15
-    },
-    {
-      product_id: 2,
-      name: 'Hand Sanitizer 500ml',
-      category: 'Selfcare',
-      price: 45.00,
-      quantity: 50,
-      manufacturer: 'CleanCare Ltd',
-      prescription: 'Not Required',
-      class_level: 0,
-      need_approval: false,
-      expiration_date: '2026-06-30',
-      image: '🧴',
-      rating: 4.8,
-      originalPrice: 50.00,
-      discount: 10
-    },
-    {
-      product_id: 3,
-      name: 'Vitamin C 1000mg',
-      category: 'Selfcare',
-      price: 35.75,
-      quantity: 75,
-      manufacturer: 'VitaHealth',
-      prescription: 'Not Required',
-      class_level: 0,
-      need_approval: false,
-      expiration_date: '2025-09-15',
-      image: '🧪',
-      rating: 4.6,
-      originalPrice: 40.00,
-      discount: 11
-    },
-    {
-      product_id: 4,
-      name: 'Surgical Face Mask (Pack of 50)',
-      category: 'Medical Equipments',
-      price: 120.00,
-      quantity: 0,
-      manufacturer: 'MedSupply Co',
-      prescription: 'Not Required',
-      class_level: 1,
-      need_approval: false,
-      expiration_date: '2027-03-20',
-      image: '😷',
-      rating: 4.4,
-      originalPrice: 140.00,
-      discount: 14
-    },
-    {
-      product_id: 5,
-      name: 'Digital Thermometer',
-      category: 'Medical Equipments',
-      price: 85.00,
-      quantity: 25,
-      manufacturer: 'TechMed',
-      prescription: 'Not Required',
-      class_level: 1,
-      need_approval: false,
-      expiration_date: '2028-01-10',
-      image: '🌡️',
-      rating: 4.7,
-      originalPrice: 100.00,
-      discount: 15
-    },
-    {
-      product_id: 6,
-      name: 'Anti-Aging Serum',
-      category: 'Cosmeceuticals',
-      price: 150.00,
-      quantity: 30,
-      manufacturer: 'DermaTech',
-      prescription: 'Required',
-      class_level: 2,
-      need_approval: true,
-      expiration_date: '2025-08-30',
-      image: '🧪',
-      rating: 4.9,
-      originalPrice: 180.00,
-      discount: 17
-    },
-    {
-      product_id: 7,
-      name: 'Antibiotic Cream',
-      category: 'Medicines',
-      price: 55.00,
-      quantity: 40,
-      manufacturer: 'MediCare',
-      prescription: 'Required',
-      class_level: 2,
-      need_approval: true,
-      expiration_date: '2025-11-15',
-      image: '🧴',
-      rating: 4.3,
-      originalPrice: 65.00,
-      discount: 15
-    },
-    {
-      product_id: 8,
-      name: 'Blood Pressure Monitor',
-      category: 'Medical Equipments',
-      price: 89.99,
-      quantity: 15,
-      manufacturer: 'HealthTech',
-      prescription: 'Not Required',
-      class_level: 3,
-      need_approval: false,
-      expiration_date: '2028-05-20',
-      image: '🩺',
-      rating: 4.6,
-      originalPrice: 99.99,
-      discount: 10
-    },
-    {
-      product_id: 9,
-      name: 'Insulin Pen',
-      category: 'Medicines',
-      price: 15.75,
-      quantity: 80,
-      manufacturer: 'DiabetesCare',
-      prescription: 'Required',
-      class_level: 4,
-      need_approval: true,
-      expiration_date: '2025-08-15',
-      image: '💉',
-      rating: 4.8,
-      originalPrice: 18.00,
-      discount: 12
-    },
-    {
-      product_id: 10,
-      name: 'Moisturizing Lotion',
-      category: 'Selfcare',
-      price: 12.50,
-      quantity: 200,
-      manufacturer: 'SkinCare Plus',
-      prescription: 'Not Required',
-      class_level: 0,
-      need_approval: false,
-      expiration_date: '2026-12-31',
-      image: '🧴',
-      rating: 4.2,
-      originalPrice: 15.00,
-      discount: 17
-    },
-    {
-      product_id: 11,
-      name: 'Moisturizing Lotion',
-      category: 'Selfcare',
-      price: 12.50,
-      quantity: 200,
-      manufacturer: 'SkinCare Plus',
-      prescription: 'Not Required',
-      class_level: 0,
-      need_approval: false,
-      expiration_date: '2026-12-31',
-      image: '🧴',
-      rating: 4.2,
-      originalPrice: 15.00,
-      discount: 17
-    },
-    {
-      product_id: 12,
-      name: 'Moisturizing Lotion',
-      category: 'Selfcare',
-      price: 12.50,
-      quantity: 200,
-      manufacturer: 'SkinCare Plus',
-      prescription: 'Not Required',
-      class_level: 0,
-      need_approval: false,
-      expiration_date: '2026-12-31',
-      image: '🧴',
-      rating: 4.2,
-      originalPrice: 15.00,
-      discount: 17
-    },
-    {
-      product_id: 13,
-      name: 'Moisturizing Lotion',
-      category: 'Selfcare',
-      price: 12.50,
-      quantity: 200,
-      manufacturer: 'SkinCare Plus',
-      prescription: 'Not Required',
-      class_level: 0,
-      need_approval: false,
-      expiration_date: '2026-12-31',
-      image: '🧴',
-      rating: 4.2,
-      originalPrice: 15.00,
-      discount: 17
-    },
-    {
-      product_id: 14,
-      name: 'Moisturizing Lotion',
-      category: 'Selfcare',
-      price: 12.50,
-      quantity: 200,
-      manufacturer: 'SkinCare Plus',
-      prescription: 'Not Required',
-      class_level: 0,
-      need_approval: false,
-      expiration_date: '2026-12-31',
-      image: '🧴',
-      rating: 4.2,
-      originalPrice: 15.00,
-      discount: 17
-    },
-    {
-      product_id: 15,
-      name: 'Moisturizing Lotion',
-      category: 'Selfcare',
-      price: 12.50,
-      quantity: 200,
-      manufacturer: 'SkinCare Plus',
-      prescription: 'Not Required',
-      class_level: 0,
-      need_approval: false,
-      expiration_date: '2026-12-31',
-      image: '🧴',
-      rating: 4.2,
-      originalPrice: 15.00,
-      discount: 17
-    },
-    {
-      product_id: 16,
-      name: 'Moisturizing Lotion',
-      category: 'Selfcare',
-      price: 12.50,
-      quantity: 200,
-      manufacturer: 'SkinCare Plus',
-      prescription: 'Not Required',
-      class_level: 0,
-      need_approval: false,
-      expiration_date: '2026-12-31',
-      image: '🧴',
-      rating: 4.2,
-      originalPrice: 15.00,
-      discount: 17
-    },
+>>>>>>> 23611acaeaefac7e8b7f2da53c84362b844d6404
   ];
 
   // Handle URL parameters to set initial category
   useEffect(() => {
     if (params.category) {
-      // Check if the category from params exists in our categories list
       const categoryExists = categories.some(cat => cat.name === params.category);
       if (categoryExists) {
         setSelectedCategory(params.category);
       } else {
-        // If category doesn't exist, default to 'All'
         setSelectedCategory('All');
       }
     }
   }, [params.category]);
 
-  // Reset to first page when filters change
+  // Fetch products when filters, search, or page change
   useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedCategory, searchQuery, filters]);
+    const fetchProducts = async () => {
+      try {
+        const response = await getProducts(currentPage, itemsPerPage);
+        console.log(response.results)
+        // Category to emoji mapping
+        const getCategoryEmoji = (category) => {
+          const categoryMap = {
+            'Supplement': '🌱',
+            'Cosmetic': '🧴',
+            'Medical Equipment': '🩺',
+            'Medicine': '💊',
+            'default': '💊'
+          };
+          return categoryMap[category] || categoryMap['default'];
+        };
 
-  // Filter products based on all criteria
-  const allFilteredProducts = featuredProducts.filter(product => {
-    // Category filter
+        // Transform API data to match frontend expectations
+        const transformedProducts = (response.results || []).map(product => ({
+          ...product,
+          price: parseFloat(product.unit_price || 0),
+          in_stock: (product.available_quantity || 0) > 0,
+          quantity: product.available_quantity || 0, // Add this for compatibility
+          class_level: product.class_level?.toString() || 'OTC',
+          rating: 4.5, // Default rating since API doesn't provide it
+          image: getCategoryEmoji(product.category)
+        }));
+        
+        setProducts(transformedProducts);
+        setTotalCount(response.count || 0);
+        setTotalPages(Math.ceil((response.count || 0) / itemsPerPage));
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]);
+        setTotalCount(0);
+        setTotalPages(1);
+      }
+    };
+    fetchProducts();
+  }, [currentPage, selectedCategory, searchQuery, filters]);
+
+  // Filter products based on all criteria (client-side filtering after API fetch)
+  const allFilteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
-    
-    // Search filter
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // Class level filter
     const matchesClassLevel = filters.classLevels.length === 0 || filters.classLevels.includes(product.class_level);
-    
-    // Stock filter
     const matchesStock = !filters.inStockOnly || product.quantity > 0;
-    
-    // Price range filter
     let matchesPrice = true;
     switch (filters.priceRange) {
       case 'under25':
@@ -349,13 +126,11 @@ const ProductPage = () => {
       default:
         matchesPrice = true;
     }
-    
     return matchesCategory && matchesSearch && matchesClassLevel && matchesStock && matchesPrice;
   });
 
-  // Calculate pagination
+  // Calculate pagination (adjusted for filtered results)
   const totalFilteredCount = allFilteredProducts.length;
-  const calculatedTotalPages = Math.ceil(totalFilteredCount / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const filteredProducts = allFilteredProducts.slice(startIndex, endIndex);
@@ -363,8 +138,8 @@ const ProductPage = () => {
   // Update pagination state when filtered products change
   useEffect(() => {
     setTotalCount(totalFilteredCount);
-    setTotalPages(calculatedTotalPages);
-  }, [totalFilteredCount, calculatedTotalPages]);
+    setTotalPages(Math.ceil(totalFilteredCount / itemsPerPage));
+  }, [totalFilteredCount]);
 
   const handleCategoryPress = (categoryName) => {
     setSelectedCategory(categoryName);
@@ -430,16 +205,13 @@ const ProductPage = () => {
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
-    
+
     if (totalPages <= maxVisiblePages) {
-      // Show all pages if total pages is less than or equal to max visible
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Show pages with ellipsis logic
       if (currentPage <= 3) {
-        // Show first 3 pages, ellipsis, and last page
         for (let i = 1; i <= 3; i++) {
           pages.push(i);
         }
@@ -448,7 +220,6 @@ const ProductPage = () => {
           pages.push(totalPages);
         }
       } else if (currentPage >= totalPages - 2) {
-        // Show first page, ellipsis, and last 3 pages
         pages.push(1);
         if (totalPages > 4) {
           pages.push('...');
@@ -457,7 +228,6 @@ const ProductPage = () => {
           pages.push(i);
         }
       } else {
-        // Show first page, ellipsis, current page and neighbors, ellipsis, last page
         pages.push(1);
         pages.push('...');
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
@@ -467,7 +237,7 @@ const ProductPage = () => {
         pages.push(totalPages);
       }
     }
-    
+
     return pages;
   };
 
@@ -477,7 +247,7 @@ const ProductPage = () => {
       <View style={{ paddingHorizontal: theme.spacing.md, paddingTop: theme.spacing.lg, backgroundColor: theme.colors.background }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.md }}>
           <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.colors.text }}>Products</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => setShowFilterModal(true)}
             style={{ position: 'relative' }}
           >
@@ -594,11 +364,7 @@ const ProductPage = () => {
                     <Text style={styles.discountText}>-{item.discount}%</Text>
                   </View>
                 )}
-                {item.need_approval && (
-                  <View style={[styles.discountBadge, { backgroundColor: '#FEF3C7', top: 8, right: 8 }]}>
-                    <Text style={[styles.discountText, { color: '#92400E' }]}>Rx</Text>
-                  </View>
-                )}
+
               </View>
 
               <Text style={styles.productName}>{item.name}</Text>
@@ -621,6 +387,25 @@ const ProductPage = () => {
                   <Text style={styles.productOriginalPrice}>${item.originalPrice}</Text>
                 )}
               </View>
+
+              {item.need_approval && (
+                <View style={{
+                  backgroundColor: '#FEF3C7',
+                  borderRadius: 4,
+                  paddingHorizontal: 6,
+                  paddingVertical: 2,
+                  alignSelf: 'flex-start',
+                  marginTop: 4
+                }}>
+                  <Text style={{
+                    color: '#92400E',
+                    fontSize: 10,
+                    fontWeight: '600'
+                  }}>
+                    Prescription Required
+                  </Text>
+                </View>
+              )}
 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, minHeight: 32 }}>
                 <TouchableOpacity
@@ -662,6 +447,11 @@ const ProductPage = () => {
         numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: theme.spacing.sm }}
         contentContainerStyle={{ paddingBottom: 0, paddingHorizontal: theme.spacing.md }}
+        ListEmptyComponent={() => (
+          <View style={{ padding: theme.spacing.md, alignItems: 'center' }}>
+            <Text style={{ color: theme.colors.subtext }}>No products found.</Text>
+          </View>
+        )}
       />
 
       {/* Pagination */}
@@ -675,8 +465,8 @@ const ProductPage = () => {
         }}>
           {/* Results info */}
           <View style={{ alignItems: 'center', marginBottom: theme.spacing.sm }}>
-            <Text style={{ 
-              fontSize: 14, 
+            <Text style={{
+              fontSize: 14,
               color: theme.colors.subtext,
               textAlign: 'center'
             }}>
@@ -706,10 +496,10 @@ const ProductPage = () => {
                 alignItems: 'center'
               }}
             >
-              <Icon 
-                name="chevron-back" 
-                size={16} 
-                color={currentPage === 1 ? '#9CA3AF' : 'white'} 
+              <Icon
+                name="chevron-back"
+                size={16}
+                color={currentPage === 1 ? '#9CA3AF' : 'white'}
               />
             </TouchableOpacity>
 
@@ -725,20 +515,20 @@ const ProductPage = () => {
                   marginHorizontal: 2,
                   marginVertical: 2,
                   borderRadius: 8,
-                  backgroundColor: page === currentPage 
-                    ? theme.colors.primary 
-                    : page === '...' 
-                      ? 'transparent' 
+                  backgroundColor: page === currentPage
+                    ? theme.colors.primary
+                    : page === '...'
+                      ? 'transparent'
                       : '#F3F4F6',
                   minWidth: 40,
                   alignItems: 'center'
                 }}
               >
                 <Text style={{
-                  color: page === currentPage 
-                    ? 'white' 
-                    : page === '...' 
-                      ? theme.colors.subtext 
+                  color: page === currentPage
+                    ? 'white'
+                    : page === '...'
+                      ? theme.colors.subtext
                       : theme.colors.text,
                   fontWeight: page === currentPage ? 'bold' : 'normal',
                   fontSize: 14
@@ -763,10 +553,10 @@ const ProductPage = () => {
                 alignItems: 'center'
               }}
             >
-              <Icon 
-                name="chevron-forward" 
-                size={16} 
-                color={currentPage === totalPages ? '#9CA3AF' : 'white'} 
+              <Icon
+                name="chevron-forward"
+                size={16}
+                color={currentPage === totalPages ? '#9CA3AF' : 'white'}
               />
             </TouchableOpacity>
           </View>
@@ -846,9 +636,9 @@ const ProductPage = () => {
                     alignSelf: 'flex-start'
                   }}
                 >
-                  <Icon 
-                    name={filters.inStockOnly ? "checkmark-circle" : "ellipse-outline"} 
-                    size={20} 
+                  <Icon
+                    name={filters.inStockOnly ? "checkmark-circle" : "ellipse-outline"}
+                    size={20}
                     color={filters.inStockOnly ? 'white' : theme.colors.subtext}
                     style={{ marginRight: 8 }}
                   />
@@ -886,9 +676,9 @@ const ProductPage = () => {
                         borderRadius: 12
                       }}
                     >
-                      <Icon 
-                        name={filters.priceRange === range.key ? "radio-button-on" : "radio-button-off"} 
-                        size={20} 
+                      <Icon
+                        name={filters.priceRange === range.key ? "radio-button-on" : "radio-button-off"}
+                        size={20}
                         color={filters.priceRange === range.key ? 'white' : theme.colors.subtext}
                         style={{ marginRight: 12 }}
                       />
@@ -905,9 +695,9 @@ const ProductPage = () => {
             </ScrollView>
 
             {/* Modal Footer */}
-            <View style={{ 
-              flexDirection: 'row', 
-              justifyContent: 'space-between', 
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
               marginTop: theme.spacing.md,
               paddingTop: theme.spacing.md,
               borderTopWidth: 1,
@@ -927,7 +717,7 @@ const ProductPage = () => {
               >
                 <Text style={{ color: theme.colors.text, fontWeight: '600' }}>Clear All</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 onPress={() => setShowFilterModal(false)}
                 style={{

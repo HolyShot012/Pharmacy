@@ -21,7 +21,7 @@ class Products(models.Model):
     category = models.CharField(max_length=100, blank=True, null=True)
     manufacturer = models.CharField(max_length=255, blank=True, null=True)
     class_level = models.IntegerField(blank=True, null=True)
-    need_approval = models.BooleanField(default=False)
+    no_approval = models.BooleanField(default=True)
     expiration_date = models.DateField(blank=True, null=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 

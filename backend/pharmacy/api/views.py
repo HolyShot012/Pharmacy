@@ -187,3 +187,14 @@ def create_order(request):
             {'error': str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_orders(request):
+    user = request.user
+    paginator = StandardResultsSetPagination()
+    paginator.page_size = 3
+    orders = Orders.objects.filter(user_id=user.id).prefetch_related('orderitems_set')
+    paginated_orders = paginator.paginate_queryset(orders, request)
+    serializer = OrdersSerializer(paginated_orders, many=True)
+    return paginator.get_paginated_response(serializer.data)
