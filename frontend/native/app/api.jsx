@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.1.76:8000'; // Replace with your Supabase or production URL (e.g., https://your-supabase-url)
+const API_URL = 'http://192.168.1.45:8000'; // Replace with your Supabase or production URL (e.g., https://your-supabase-url)
 
 const api = axios.create({
     baseURL: API_URL,
@@ -138,7 +138,7 @@ export const refreshToken = async () => {
         if (!refreshToken) {
             throw { error: 'No refresh token available' };
         }
-        const response = await api.post('/api/token/refresh/', {
+        const response = await api.post('/api/token/refresh', {
             refresh: refreshToken,
         });
         const { access } = response.data;
