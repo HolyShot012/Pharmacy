@@ -35,10 +35,10 @@ const ProductPage = () => {
   const itemsPerPage = 10;
 
   const categories = [
-    { id: 1, name: 'Medicines', icon: '💊', color: '#fee2e2' },
-    { id: 2, name: 'Medical Equipments', icon: '🩺', color: '#d1fae5' },
-    { id: 3, name: 'Cosmeceuticals', icon: '🧴', color: '#dbeafe' },
-    { id: 4, name: 'Selfcare', icon: '🧘‍♀️', color: '#fce7f3' },
+    { id: 1, name: 'Medicine', icon: '💊', color: '#fee2e2' },
+    { id: 2, name: 'Medical Equipment', icon: '🩺', color: '#d1fae5' },
+    { id: 3, name: 'Cosmetic', icon: '🧴', color: '#dbeafe' },
+    { id: 4, name: 'Supplement', icon: '🧘‍♀️', color: '#fce7f3' },
   ];
 
   // Handle URL parameters to set initial category
@@ -58,7 +58,31 @@ const ProductPage = () => {
     const fetchProducts = async () => {
       try {
         const response = await getProducts(currentPage, itemsPerPage);
-        setProducts(response.results || []);
+        console.log(response.results)
+        // Category to emoji mapping
+        const getCategoryEmoji = (category) => {
+          const categoryMap = {
+            'Supplement': '🌱',
+            'Cosmetic': '🧴',
+            'Medical Equipment': '🩺',
+            'Medicine': '💊',
+            'default': '💊'
+          };
+          return categoryMap[category] || categoryMap['default'];
+        };
+
+        // Transform API data to match frontend expectations
+        const transformedProducts = (response.results || []).map(product => ({
+          ...product,
+          price: parseFloat(product.unit_price || 0),
+          in_stock: (product.available_quantity || 0) > 0,
+          quantity: product.available_quantity || 0, // Add this for compatibility
+          class_level: product.class_level?.toString() || 'OTC',
+          rating: 4.5, // Default rating since API doesn't provide it
+          image: getCategoryEmoji(product.category)
+        }));
+        
+        setProducts(transformedProducts);
         setTotalCount(response.count || 0);
         setTotalPages(Math.ceil((response.count || 0) / itemsPerPage));
       } catch (error) {
@@ -332,11 +356,7 @@ const ProductPage = () => {
                     <Text style={styles.discountText}>-{item.discount}%</Text>
                   </View>
                 )}
-                {item.need_approval && (
-                  <View style={[styles.discountBadge, { backgroundColor: '#FEF3C7', top: 8, right: 8 }]}>
-                    <Text style={[styles.discountText, { color: '#92400E' }]}>Rx</Text>
-                  </View>
-                )}
+
               </View>
 
               <Text style={styles.productName}>{item.name}</Text>
@@ -359,6 +379,25 @@ const ProductPage = () => {
                   <Text style={styles.productOriginalPrice}>${item.originalPrice}</Text>
                 )}
               </View>
+
+              {item.need_approval && (
+                <View style={{
+                  backgroundColor: '#FEF3C7',
+                  borderRadius: 4,
+                  paddingHorizontal: 6,
+                  paddingVertical: 2,
+                  alignSelf: 'flex-start',
+                  marginTop: 4
+                }}>
+                  <Text style={{
+                    color: '#92400E',
+                    fontSize: 10,
+                    fontWeight: '600'
+                  }}>
+                    Prescription Required
+                  </Text>
+                </View>
+              )}
 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, minHeight: 32 }}>
                 <TouchableOpacity

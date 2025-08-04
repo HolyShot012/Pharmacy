@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ScrollView, Text, TouchableOpacity, View, Alert, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Edit from 'react-native-vector-icons/AntDesign';
 import { styles } from '../components/ui/Styles';
 import { theme } from '../components/ui/Theme';
 import { useRouter } from 'expo-router';
@@ -193,60 +194,7 @@ const ProfilePage = () => {
                     </Text>
                 </View>
 
-                <TouchableOpacity
-                    onPress={() => {
-                        if (isEditing) {
-                            handleSave();
-                        } else {
-                            setIsEditing(true);
-                        }
-                    }}
-                    disabled={isLoading}
-                    style={{
-                        paddingHorizontal: 16,
-                        paddingVertical: 8,
-                        borderRadius: 8,
-                        backgroundColor: isLoading ? theme.colors.subtext : (isEditing ? theme.colors.primary : theme.colors.primary + '10'),
-                        flexDirection: 'row',
-                        alignItems: 'center'
-                    }}
-                >
-                    {isLoading && (
-                        <ActivityIndicator 
-                            size="small" 
-                            color="#FFFFFF" 
-                            style={{ marginRight: 8 }}
-                        />
-                    )}
-                    <Text style={{
-                        color: isLoading ? '#FFFFFF' : (isEditing ? '#FFFFFF' : theme.colors.primary),
-                        fontWeight: '600',
-                        fontSize: 14
-                    }}>
-                        {isLoading ? 'Saving...' : (isEditing ? 'Save' : 'Edit')}
-                    </Text>
-                </TouchableOpacity>
 
-                {isEditing && (
-                    <TouchableOpacity
-                        onPress={handleCancel}
-                        style={{
-                            paddingHorizontal: 16,
-                            paddingVertical: 8,
-                            borderRadius: 8,
-                            marginLeft: 8,
-                            backgroundColor: '#F3F4F6'
-                        }}
-                    >
-                        <Text style={{
-                            color: theme.colors.subtext,
-                            fontWeight: '600',
-                            fontSize: 14
-                        }}>
-                            Cancel
-                        </Text>
-                    </TouchableOpacity>
-                )}
             </View>
 
             <ScrollView 
@@ -289,15 +237,79 @@ const ProfilePage = () => {
                 </View>
 
                 {/* Personal Information */}
-                <Text style={{
-                    fontSize: 18,
-                    fontWeight: 'bold',
-                    color: theme.colors.text,
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                     marginBottom: 16,
-                    marginLeft: 4
+                    marginLeft: 4,
+                    marginRight: 4
                 }}>
-                    Personal Information
-                </Text>
+                    <Text style={{
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        color: theme.colors.text
+                    }}>
+                        Personal Information
+                    </Text>
+                    
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                if (isEditing) {
+                                    handleSave();
+                                } else {
+                                    setIsEditing(true);
+                                }
+                            }}
+                            disabled={isLoading}
+                            style={{
+                                padding: 8,
+                                borderRadius: 8,
+                                backgroundColor: isLoading ? theme.colors.subtext : (isEditing ? theme.colors.primary : theme.colors.primary + '10'),
+                                flexDirection: 'row',
+                                alignItems: 'center'
+                            }}
+                        >
+                            {isLoading ? (
+                                <ActivityIndicator 
+                                    size="small" 
+                                    color="#FFFFFF"
+                                />
+                            ) : isEditing ? (
+                                <Icon 
+                                    name="checkmark" 
+                                    size={24} 
+                                    color="#FFFFFF" 
+                                />
+                            ) : (
+                                <Edit
+                                    name="edit" 
+                                    size={28} 
+                                    color={theme.colors.primary} 
+                                />
+                            )}
+                        </TouchableOpacity>
+
+                        {isEditing && (
+                            <TouchableOpacity
+                                onPress={handleCancel}
+                                style={{
+                                    padding: 8,
+                                    borderRadius: 8,
+                                    marginLeft: 8,
+                                    backgroundColor: '#F3F4F6'
+                                }}
+                            >
+                                <Icon 
+                                    name="close" 
+                                    size={24} 
+                                    color={theme.colors.subtext} 
+                                />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                </View>
 
                 <ProfileField 
                     label="Full Name" 
