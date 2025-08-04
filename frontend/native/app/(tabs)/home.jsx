@@ -1,7 +1,7 @@
 import { AntDesign } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useState } from 'react';
-import { FlatList, ScrollView, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { FlatList, ScrollView, Text, TextInput, TouchableOpacity, View, Alert, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Bell from 'react-native-vector-icons/Feather';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -63,6 +63,126 @@ const HomePage = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const { logout } = useAuth();
     const router = useRouter();
+
+    // Animation refs for notification modal
+    const backgroundOpacity = useRef(new Animated.Value(0)).current;
+    const modalTranslateY = useRef(new Animated.Value(-50)).current;
+    const modalOpacity = useRef(new Animated.Value(0)).current;
+
+    // Animation refs for location modal
+    const locationBackgroundOpacity = useRef(new Animated.Value(0)).current;
+    const locationModalTranslateY = useRef(new Animated.Value(-50)).current;
+    const locationModalOpacity = useRef(new Animated.Value(0)).current;
+
+    // Animation effects for notification modal
+    useEffect(() => {
+        if (showNotifications) {
+            // Reset values
+            backgroundOpacity.setValue(0);
+            modalTranslateY.setValue(-50);
+            modalOpacity.setValue(0);
+            
+            // Start animations
+            Animated.parallel([
+                // Background fade in
+                Animated.timing(backgroundOpacity, {
+                    toValue: 1,
+                    duration: 200,
+                    useNativeDriver: false,
+                }),
+                // Modal slide down and fade in
+                Animated.sequence([
+                    Animated.delay(50), // Small delay for better effect
+                    Animated.parallel([
+                        Animated.timing(modalTranslateY, {
+                            toValue: 0,
+                            duration: 250,
+                            useNativeDriver: true,
+                        }),
+                        Animated.timing(modalOpacity, {
+                            toValue: 1,
+                            duration: 200,
+                            useNativeDriver: true,
+                        }),
+                    ])
+                ])
+            ]).start();
+        } else {
+            // Animate out
+            Animated.parallel([
+                Animated.timing(backgroundOpacity, {
+                    toValue: 0,
+                    duration: 150,
+                    useNativeDriver: false,
+                }),
+                Animated.timing(modalTranslateY, {
+                    toValue: -50,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(modalOpacity, {
+                    toValue: 0,
+                    duration: 150,
+                    useNativeDriver: true,
+                }),
+            ]).start();
+        }
+    }, [showNotifications]);
+
+    // Animation effects for location modal
+    useEffect(() => {
+        if (showLocationModal) {
+            // Reset values
+            locationBackgroundOpacity.setValue(0);
+            locationModalTranslateY.setValue(-50);
+            locationModalOpacity.setValue(0);
+            
+            // Start animations
+            Animated.parallel([
+                // Background fade in
+                Animated.timing(locationBackgroundOpacity, {
+                    toValue: 1,
+                    duration: 200,
+                    useNativeDriver: false,
+                }),
+                // Modal slide down and fade in
+                Animated.sequence([
+                    Animated.delay(50), // Small delay for better effect
+                    Animated.parallel([
+                        Animated.timing(locationModalTranslateY, {
+                            toValue: 0,
+                            duration: 250,
+                            useNativeDriver: true,
+                        }),
+                        Animated.timing(locationModalOpacity, {
+                            toValue: 1,
+                            duration: 200,
+                            useNativeDriver: true,
+                        }),
+                    ])
+                ])
+            ]).start();
+        } else {
+            // Animate out
+            Animated.parallel([
+                Animated.timing(locationBackgroundOpacity, {
+                    toValue: 0,
+                    duration: 150,
+                    useNativeDriver: false,
+                }),
+                Animated.timing(locationModalTranslateY, {
+                    toValue: -50,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(locationModalOpacity, {
+                    toValue: 0,
+                    duration: 150,
+                    useNativeDriver: true,
+                }),
+            ]).start();
+        }
+    }, [showLocationModal]);
 
     const locations = [
         'Ho Chi Minh City, District 1',
@@ -271,62 +391,291 @@ const HomePage = () => {
                         </Pressable>
                     </Modal>
 
-                    {/* Location Modal */}
+                    {/* Location Modal - Custom slide-down animation from location button */}
                     <Modal
                         visible={showLocationModal}
                         transparent
-                        animationType="slide"
+                        animationType="none"
                         onRequestClose={() => setShowLocationModal(false)}
                     >
-                        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }} onPress={() => setShowLocationModal(false)}>
-                            <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '50%' }}>
-                                <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16, textAlign: 'center' }}>Select Location</Text>
-                                {locations.map((location, index) => (
-                                    <TouchableOpacity
-                                        key={index}
-                                        style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}
-                                        onPress={() => {
-                                            setSelectedLocation(location);
-                                            setShowLocationModal(false);
+                        <Animated.View 
+                            style={{ 
+                                flex: 1, 
+                                backgroundColor: locationBackgroundOpacity.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.1)']
+                                })
+                            }} 
+                        >
+                            <Pressable 
+                                style={{ flex: 1 }} 
+                                onPress={() => setShowLocationModal(false)}
+                            >
+                                {/* Location dropdown positioned near the location button */}
+                                <Animated.View style={{
+                                    position: 'absolute',
+                                    top: 70, // Position below the header
+                                    left: 16, // Align with location button
+                                    backgroundColor: '#FFF',
+                                    borderRadius: 12,
+                                    padding: 0,
+                                    width: 320,
+                                    maxHeight: 400,
+                                    elevation: 8,
+                                    shadowColor: '#000',
+                                    shadowOpacity: 0.15,
+                                    shadowOffset: { width: 0, height: 4 },
+                                    shadowRadius: 12,
+                                    borderWidth: 1,
+                                    borderColor: '#E5E7EB',
+                                    transform: [{ translateY: locationModalTranslateY }],
+                                    opacity: locationModalOpacity
+                                }}>
+                                {/* Header with title and close button */}
+                                <View style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    paddingHorizontal: 20,
+                                    paddingVertical: 16,
+                                    borderBottomWidth: 1,
+                                    borderBottomColor: '#F3F4F6'
+                                }}>
+                                    <Text style={{ 
+                                        fontSize: 18, 
+                                        fontWeight: 'bold', 
+                                        color: theme.colors.text 
+                                    }}>
+                                        Select Location
+                                    </Text>
+                                    <TouchableOpacity 
+                                        onPress={() => setShowLocationModal(false)}
+                                        style={{
+                                            padding: 4,
+                                            borderRadius: 6
                                         }}
                                     >
-                                        <Text style={{ fontSize: 16, color: selectedLocation === location ? theme.colors.primary : theme.colors.text }}>
-                                            {location}
-                                        </Text>
+                                        <Icon name="close" size={20} color={theme.colors.subtext} />
                                     </TouchableOpacity>
-                                ))}
-                            </View>
-                        </Pressable>
+                                </View>
+
+                                {/* Location list */}
+                                <ScrollView 
+                                    style={{ maxHeight: 300 }}
+                                    showsVerticalScrollIndicator={false}
+                                >
+                                    {locations.map((location, index) => (
+                                        <TouchableOpacity
+                                            key={index}
+                                            style={{ 
+                                                paddingHorizontal: 20,
+                                                paddingVertical: 16, 
+                                                borderBottomWidth: index < locations.length - 1 ? 1 : 0, 
+                                                borderBottomColor: '#F3F4F6',
+                                                backgroundColor: selectedLocation === location ? '#F8FAFC' : 'transparent'
+                                            }}
+                                            onPress={() => {
+                                                setSelectedLocation(location);
+                                                setShowLocationModal(false);
+                                            }}
+                                        >
+                                            <View style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between'
+                                            }}>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                                                    <Icon 
+                                                        name="location" 
+                                                        size={20} 
+                                                        color={selectedLocation === location ? theme.colors.primary : theme.colors.subtext}
+                                                        style={{ marginRight: 12 }}
+                                                    />
+                                                    <Text style={{ 
+                                                        fontSize: 16, 
+                                                        color: selectedLocation === location ? theme.colors.primary : theme.colors.text,
+                                                        fontWeight: selectedLocation === location ? '600' : '400',
+                                                        flex: 1
+                                                    }}>
+                                                        {location}
+                                                    </Text>
+                                                </View>
+                                                {selectedLocation === location && (
+                                                    <Icon 
+                                                        name="checkmark-circle" 
+                                                        size={20} 
+                                                        color={theme.colors.primary}
+                                                    />
+                                                )}
+                                            </View>
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+                                </Animated.View>
+                            </Pressable>
+                        </Animated.View>
                     </Modal>
 
-                    {/* Notifications Modal */}
+                    {/* Notifications Modal - Facebook-style dropdown with custom animations */}
                     <Modal
                         visible={showNotifications}
                         transparent
-                        animationType="slide"
+                        animationType="none"
                         onRequestClose={() => setShowNotifications(false)}
                     >
-                        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }} onPress={() => setShowNotifications(false)}>
-                            <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '70%' }}>
-                                <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16, textAlign: 'center' }}>Notifications</Text>
-                                <ScrollView>
-                                    {notifications.map((notification) => (
-                                        <View key={notification.id} style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' }}>
-                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                                <View style={{ flex: 1 }}>
-                                                    <Text style={{ fontSize: 16, fontWeight: 'bold', color: theme.colors.text }}>{notification.title}</Text>
-                                                    <Text style={{ fontSize: 14, color: theme.colors.subtext, marginTop: 4 }}>{notification.message}</Text>
-                                                    <Text style={{ fontSize: 12, color: theme.colors.subtext, marginTop: 4 }}>{notification.time}</Text>
+                        <Animated.View 
+                            style={{ 
+                                flex: 1, 
+                                backgroundColor: backgroundOpacity.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.1)']
+                                })
+                            }} 
+                        >
+                            <Pressable 
+                                style={{ flex: 1 }} 
+                                onPress={() => setShowNotifications(false)}
+                            >
+                                {/* Notification dropdown positioned near the bell icon */}
+                                <Animated.View style={{
+                                    position: 'absolute',
+                                    top: 70, // Position below the header
+                                    right: 16, // Align with notification icon
+                                    backgroundColor: '#FFF',
+                                    borderRadius: 12,
+                                    padding: 0,
+                                    width: 320,
+                                    maxHeight: 400,
+                                    elevation: 8,
+                                    shadowColor: '#000',
+                                    shadowOpacity: 0.15,
+                                    shadowOffset: { width: 0, height: 4 },
+                                    shadowRadius: 12,
+                                    borderWidth: 1,
+                                    borderColor: '#E5E7EB',
+                                    transform: [{ translateY: modalTranslateY }],
+                                    opacity: modalOpacity
+                                }}>
+                                {/* Header with title and close button */}
+                                <View style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    paddingHorizontal: 16,
+                                    paddingVertical: 12,
+                                    borderBottomWidth: 1,
+                                    borderBottomColor: '#F3F4F6'
+                                }}>
+                                    <Text style={{ 
+                                        fontSize: 18, 
+                                        fontWeight: 'bold', 
+                                        color: theme.colors.text 
+                                    }}>
+                                        Notifications
+                                    </Text>
+                                    <TouchableOpacity 
+                                        onPress={() => setShowNotifications(false)}
+                                        style={{
+                                            padding: 4,
+                                            borderRadius: 6
+                                        }}
+                                    >
+                                        <Icon name="close" size={20} color={theme.colors.subtext} />
+                                    </TouchableOpacity>
+                                </View>
+                                
+                                {/* Notifications list */}
+                                <ScrollView 
+                                    style={{ maxHeight: 320 }}
+                                    showsVerticalScrollIndicator={false}
+                                >
+                                    {notifications.map((notification, index) => (
+                                        <TouchableOpacity 
+                                            key={notification.id} 
+                                            style={{ 
+                                                paddingHorizontal: 16,
+                                                paddingVertical: 12, 
+                                                borderBottomWidth: index < notifications.length - 1 ? 1 : 0, 
+                                                borderBottomColor: '#F3F4F6',
+                                                backgroundColor: !notification.read ? '#F8FAFC' : 'transparent'
+                                            }}
+                                            onPress={() => {
+                                                // Handle notification tap
+                                                console.log('Notification tapped:', notification.title);
+                                                setShowNotifications(false);
+                                                router.push('/notifications');
+                                            }}
+                                        >
+                                            <View style={{ 
+                                                flexDirection: 'row', 
+                                                justifyContent: 'space-between', 
+                                                alignItems: 'flex-start' 
+                                            }}>
+                                                <View style={{ flex: 1, marginRight: 8 }}>
+                                                    <Text style={{ 
+                                                        fontSize: 15, 
+                                                        fontWeight: !notification.read ? '600' : '500', 
+                                                        color: theme.colors.text,
+                                                        marginBottom: 2
+                                                    }}>
+                                                        {notification.title}
+                                                    </Text>
+                                                    <Text style={{ 
+                                                        fontSize: 13, 
+                                                        color: theme.colors.subtext, 
+                                                        lineHeight: 18
+                                                    }}>
+                                                        {notification.message}
+                                                    </Text>
+                                                    <Text style={{ 
+                                                        fontSize: 11, 
+                                                        color: theme.colors.primary, 
+                                                        marginTop: 4,
+                                                        fontWeight: '500'
+                                                    }}>
+                                                        {notification.time}
+                                                    </Text>
                                                 </View>
                                                 {!notification.read && (
-                                                    <View style={{ width: 8, height: 8, backgroundColor: theme.colors.primary, borderRadius: 4, marginTop: 4 }} />
+                                                    <View style={{ 
+                                                        width: 8, 
+                                                        height: 8, 
+                                                        backgroundColor: theme.colors.primary, 
+                                                        borderRadius: 4, 
+                                                        marginTop: 6 
+                                                    }} />
                                                 )}
                                             </View>
-                                        </View>
+                                        </TouchableOpacity>
                                     ))}
+                                    
+                                    {/* View all notifications footer */}
+                                    <TouchableOpacity 
+                                        style={{
+                                            paddingVertical: 12,
+                                            alignItems: 'center',
+                                            borderTopWidth: 1,
+                                            borderTopColor: '#F3F4F6',
+                                            marginTop: 4
+                                        }}
+                                        onPress={() => {
+                                            setShowNotifications(false);
+                                            // Navigate to full notifications page
+                                            router.push('/notifications');
+                                        }}
+                                    >
+                                        <Text style={{
+                                            color: theme.colors.primary,
+                                            fontWeight: '600',
+                                            fontSize: 14
+                                        }}>
+                                            View All Notifications
+                                        </Text>
+                                    </TouchableOpacity>
                                 </ScrollView>
-                            </View>
-                        </Pressable>
+                                </Animated.View>
+                            </Pressable>
+                        </Animated.View>
                     </Modal>
 
                     {/* Search Bar */}
