@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "npm run build && npx serve dist -s -l 3000""
+startCommand = "npm run build && npx serve dist -s -l 3000"
 
 [[services]]
 name = "backend"
