@@ -1,41 +1,50 @@
 import { AntDesign } from '@expo/vector-icons';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useCart } from '../../components/CartContext';
-import { styles } from '../../components/ui/Styles';
-import { theme } from '../../components/ui/Theme';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useCart } from '../components/CartContext';
+import { styles } from '../components/ui/Styles';
+import { theme } from '../components/ui/Theme';
 import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const CartPage = () => {
+const FullCartPage = () => {
     const { cartItems, updateQuantity, clearCart } = useCart();
     const router = useRouter();
     const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    // Show only first 4 unique products
-    const displayedItems = cartItems.slice(0, 4);
-    const hasMoreItems = cartItems.length > 4;
 
     const handleProceedToCheckout = () => {
         router.push('/checkout');
     };
 
-    const handleViewAllCart = () => {
-        router.push('/full-cart');
-    };
-
     return (
-        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }} edges={['top']}>
+            {/* Header */}
+            <View style={{ 
+                flexDirection: 'row', 
+                alignItems: 'center', 
+                paddingHorizontal: theme.spacing.md, 
+                paddingVertical: theme.spacing.sm,
+                borderBottomWidth: 1,
+                borderBottomColor: '#E5E7EB'
+            }}>
+                <TouchableOpacity 
+                    onPress={() => router.back()}
+                    style={{ marginRight: theme.spacing.md }}
+                >
+                    <Icon name="arrow-back" size={24} color={theme.colors.text} />
+                </TouchableOpacity>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.colors.text, flex: 1 }}>
+                    All Cart Items ({cartItems.length})
+                </Text>
+                <TouchableOpacity onPress={clearCart}>
+                    <Text style={{ color: '#EF4444', fontWeight: 'bold' }}>Clear All</Text>
+                </TouchableOpacity>
+            </View>
+
             <FlatList
-                data={displayedItems}
+                data={cartItems}
                 keyExtractor={item => (item.product_id || item.id).toString()}
-                ListHeaderComponent={
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: theme.spacing.md, paddingTop: theme.spacing.lg }}>
-                        <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.colors.text }}>Shopping Cart ({cartItems.length})</Text>
-                        <TouchableOpacity onPress={clearCart}>
-                            <Text style={{ color: '#EF4444', fontWeight: 'bold' }}>Clear All</Text>
-                        </TouchableOpacity>
-                    </View>
-                }
                 renderItem={({ item }) => (
                     <View style={styles.productCard}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -82,38 +91,7 @@ const CartPage = () => {
                     </View>
                 )}
                 ListFooterComponent={cartItems.length > 0 ? (
-                    <View>
-                        {/* View All Cart Button */}
-                        {hasMoreItems && (
-                            <View style={[styles.productCard, { marginBottom: theme.spacing.sm }]}>
-                                <TouchableOpacity 
-                                    onPress={handleViewAllCart}
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        paddingVertical: 12,
-                                        backgroundColor: '#F8FAFC',
-                                        borderRadius: 8,
-                                        borderWidth: 1,
-                                        borderColor: theme.colors.primary,
-                                        borderStyle: 'dashed'
-                                    }}
-                                >
-                                    <MaterialIcons name="visibility" size={20} color={theme.colors.primary} style={{ marginRight: 8 }} />
-                                    <Text style={{ 
-                                        color: theme.colors.primary, 
-                                        fontWeight: 'bold', 
-                                        fontSize: 16 
-                                    }}>
-                                        View All Cart Items ({cartItems.length - 4} more)
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        )}
-                        
-                        {/* Order Summary */}
-                        <View style={styles.productCard}>
+                    <View style={styles.productCard}>
                         <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 16, color: theme.colors.text }}>Order Summary</Text>
 
                         {/* Items breakdown */}
@@ -171,7 +149,6 @@ const CartPage = () => {
                             <MaterialIcons name="credit-card" size={20} color="#fff" style={{ marginRight: 8 }} />
                             <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Proceed to Checkout</Text>
                         </TouchableOpacity>
-                        </View>
                     </View>
                 ) : null}
                 ListEmptyComponent={(
@@ -184,7 +161,7 @@ const CartPage = () => {
                             Add some products to get started
                         </Text>
                         <TouchableOpacity
-                            // onPress={() => setActiveTab('products')}
+                            onPress={() => router.push('/(tabs)/products')}
                             style={{
                                 backgroundColor: theme.colors.primary,
                                 paddingHorizontal: 32,
@@ -204,8 +181,8 @@ const CartPage = () => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 20 }}
             />
-        </View>
+        </SafeAreaView>
     );
 };
 
-export default CartPage;
+export default FullCartPage;
