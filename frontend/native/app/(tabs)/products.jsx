@@ -35,10 +35,18 @@ const ProductPage = () => {
   const itemsPerPage = 10;
 
   const categories = [
+<<<<<<< HEAD
     { id: 1, name: 'Medicine', icon: '💊', color: '#fee2e2' },
     { id: 2, name: 'Medical Equipment', icon: '🩺', color: '#d1fae5' },
     { id: 3, name: 'Cosmetic', icon: '🧴', color: '#dbeafe' },
     { id: 4, name: 'Supplement', icon: '🧘‍♀️', color: '#fce7f3' },
+=======
+    { id: 1, name: 'Medicines', icon: '💊', color: '#fee2e2' },
+    { id: 2, name: 'Medical Equipment', icon: '🩺', color: '#d1fae5' },
+    { id: 3, name: 'Cosmetic', icon: '🧴', color: '#dbeafe' },
+    { id: 4, name: 'Selfcare', icon: '🧘‍♀️', color: '#fce7f3' },
+
+>>>>>>> 23611acaeaefac7e8b7f2da53c84362b844d6404
   ];
 
   // Handle URL parameters to set initial category
