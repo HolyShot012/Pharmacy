@@ -36,9 +36,10 @@ const ProductPage = () => {
 
   const categories = [
     { id: 1, name: 'Medicines', icon: '💊', color: '#fee2e2' },
-    { id: 2, name: 'Medical Equipments', icon: '🩺', color: '#d1fae5' },
-    { id: 3, name: 'Cosmeceuticals', icon: '🧴', color: '#dbeafe' },
+    { id: 2, name: 'Medical Equipment', icon: '🩺', color: '#d1fae5' },
+    { id: 3, name: 'Cosmetic', icon: '🧴', color: '#dbeafe' },
     { id: 4, name: 'Selfcare', icon: '🧘‍♀️', color: '#fce7f3' },
+
   ];
 
   // Handle URL parameters to set initial category
