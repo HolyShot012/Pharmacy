@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "start-prod": "expo export -p web && npx serve dist",
+    "build": "expo export -p web",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -46,7 +48,8 @@
     "react-native-screens": "~4.11.1",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.6",
-    "react-native-webview": "13.13.5"
+    "react-native-webview": "13.13.5",
+    "serve": "^14.2.4"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
