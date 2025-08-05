@@ -1,1 +1,1 @@
-web: cd pharmacy && python manage.py runserver 0.0.0.0:$PORT
+web: python pharmacy/manage.py runserver 0.0.0.0:$PORT
