@@ -8,3 +8,4 @@ python-dotenv
 django-phonenumber-field[phonenumbers]
 django-cors-headers
 djangorestframework-simplejwt
+gunicorn

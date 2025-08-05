@@ -1,8 +1,10 @@
 [build]
 builder = "NIXPACKS"
+[build.languages]
+python = "3.11"
 
 [deploy]
-startCommand = "cd backend/pharmacy && pip install -r requirements.txt && python manage.py runserver 0.0.0.0:$PORT"
+startCommand = "cd backend && pip install -r requirements.txt && cd pharmacy && python manage.py runserver 0.0.0.0:$PORT"
 
 [[services]]
 name = "backend"
