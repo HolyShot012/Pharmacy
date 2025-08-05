@@ -1,8 +1,9 @@
 [build]
 builder = "NIXPACKS"
+nixpacksPlan = "plan.toml"
 
 [deploy]
-startCommand = "cd backend/pharmacy && python manage.py runserver 0.0.0.0:$PORT"
+startCommand = "cd backend/pharmacy && python3 manage.py runserver 0.0.0.0:$PORT"
 
 [[services]]
 name = "backend"
