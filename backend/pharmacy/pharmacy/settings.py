@@ -22,13 +22,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-# ALLOWED_HOSTS = [
-#     '127.0.0.1',
-#     'localhost',
-#     '10.0.2.2',  # Android emulator
-#     '192.168.1.39', 
-# ]
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '10.0.2.2',  # Android emulator
+    '192.168.1.39', 
+    os.environ.get("https://pharmacy-production-6701.up.railway.app/", "127.0.0.1"),  # for local + railway
+    ".up.railway.app",  # wildcard for all railway subdomains
+    "localhost"
+]
+# ALLOWED_HOSTS = ['*']
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'your-dev-secret')
 
