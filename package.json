@@ -3,7 +3,7 @@
     "postinstall": "cd frontend/native && npm install",
     "start-frontend": "cd frontend/native && npx expo start --tunnel --clear",
     "start-backend": "cd backend/pharmacy && python manage.py runserver",
-    "start": "npm run start-frontend && npm run start-backend",
+    "start": "concurrently \"npm run start-frontend\" \"npm run start-backend\"",
     "build": "npm install",
     "dev": "npm run start-frontend && npm run start-backend"
   },
