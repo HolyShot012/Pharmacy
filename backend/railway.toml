@@ -5,8 +5,9 @@ builder = "NIXPACKS"
 providers = ["python"]
 
 phases.install.cmds = [
-  "pip install --upgrade pip",
-  "pip install -r requirements.txt"
+  "python3 -m ensurepip",  # ensures pip is installed
+  "python3 -m pip install --upgrade pip",
+  "python3 -m pip install -r requirements.txt"
 ]
 
 phases.start.cmd = "cd pharmacy && python3 manage.py runserver 0.0.0.0:$PORT"
