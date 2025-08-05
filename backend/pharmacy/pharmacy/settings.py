@@ -120,7 +120,7 @@ import dj_database_url
 load_dotenv('.env')
 
 # Build the database URL from environment variables
-DATABASE_URL = f"postgres://{os.getenv('user')}:{os.getenv('password')}@{os.getenv('host')}:{os.getenv('port')}/{os.getenv('dbname')}"
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # Configure DATABASES with connection pooling and max age
 DATABASES = {

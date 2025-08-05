@@ -1,1 +1,1 @@
-web: python ./pharmacy/manage.py runserver 0.0.0.0:$PORT
+web: gunicorn pharmacy.pharmacy.wsgi:application --chdir pharmacy --bind 0.0.0.0:$PORT
