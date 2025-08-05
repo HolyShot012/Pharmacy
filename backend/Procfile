@@ -1,1 +1,1 @@
-web: cd backend/pharmacy && python manage.py runserver 0.0.0.0:$PORT
+web: cd pharmacy && python manage.py collectstatic --noinput && gunicorn pharmacy.wsgi:application --bind 0.0.0.0:$PORT
