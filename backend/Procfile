@@ -1,1 +1,1 @@
-web: python /app/pharmacy/manage.py migrate && python /app/pharmacy/manage.py collectstatic --noinput && gunicorn --chdir /app/pharmacy pharmacy.wsgi:application --bind 0.0.0.0:$PORT
+web: cd backend/pharmacy && python manage.py runserver 0.0.0.0:$PORT
