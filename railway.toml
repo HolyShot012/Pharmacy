@@ -1,11 +1,9 @@
 [build]
 builder = "NIXPACKS"
-[build.languages]
-python = "3.11"
 
-[deploy]
-startCommand = "cd backend && pip install -r requirements.txt && cd pharmacy && python manage.py runserver 0.0.0.0:$PORT"
-
-[[services]]
-name = "backend"
-source = "."
+[build.nixpacksPlan]
+phases.setup.nixPkgs = ["python311", "pipenv"]
+phases.install.cmds = [
+  "cd backend && pip install -r requirements.txt"
+]
+phases.start.cmd = "cd backend/pharmacy && python manage.py runserver 0.0.0.0:$PORT"
