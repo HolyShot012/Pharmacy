@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "66dac2f2-71c7-4be8-be77-84b55f5c53af"
+      }
+    },
+    "android": {
+      "package": "com.longchau.mobileapp"
+    },
+    "ios": {
+      "bundleIdentifier": "com.longchau.mobileapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
+  }
+}
