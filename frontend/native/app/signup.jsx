@@ -151,9 +151,6 @@ export default function SignupScreen() {
           <TouchableOpacity onPress={() => router.replace('login')} style={styles.linkContainer}>
             <Text style={styles.linkText}>Already have an account? Login</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.secondaryButton} onPress={() => router.replace('/') /* bypass */}>
-            <Text style={styles.secondaryButtonText}>Proceed to App</Text>
-          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
