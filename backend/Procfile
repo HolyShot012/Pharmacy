@@ -1,1 +1,1 @@
-web: gunicorn pharmacy.pharmacy.wsgi:application --bind 0.0.0.0:$PORT
+web: PYTHONPATH=. gunicorn pharmacy.pharmacy.wsgi:application --bind 0.0.0.0:$PORT
