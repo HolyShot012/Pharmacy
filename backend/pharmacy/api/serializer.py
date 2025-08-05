@@ -135,7 +135,7 @@ class UsersModelSerializer(serializers.ModelSerializer):
         ]
 
 class UsersSerializer(serializers.ModelSerializer):
-    users = UsersModelSerializer(read_only=True, allow_null=True)
+    users = UsersModelSerializer(allow_null=True)
 
     class Meta:
         model = User
@@ -149,7 +149,6 @@ class UsersSerializer(serializers.ModelSerializer):
         ]
 
     def to_representation(self, instance):
-        # Flatten the users fields into the user object
         representation = super().to_representation(instance)
         users_data = representation.pop('users', {}) or {
             'phone_number': None,
@@ -162,6 +161,21 @@ class UsersSerializer(serializers.ModelSerializer):
             'birth_date': None,
         }
         return {**representation, **users_data}
+
+    def update(self, instance, validated_data):
+        # Update User fields
+        users_data = validated_data.pop('users', {})
+        instance = super().update(instance, validated_data)
+        
+        # Update or create Users instance, excluding role
+        users, _ = Users.objects.get_or_create(id=instance.id, defaults={'role': 'patient'})
+        users_serializer = UsersModelSerializer(users, data=users_data, partial=True)
+        if users_serializer.is_valid():
+            users_serializer.save()
+        else:
+            raise serializers.ValidationError(users_serializer.errors)
+        
+        return instance
     
 class BranchesSerializer(serializers.ModelSerializer):
     class Meta: 

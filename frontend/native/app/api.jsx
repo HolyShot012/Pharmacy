@@ -173,6 +173,45 @@ export const updateProfile = async (profileData) => {
     }
 };
 
+export const updateUser = async (profileData) => {
+    try {
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+            throw { error: 'No access token available' };
+        }
+
+        // Construct nested structure for Users model fields
+        const userFields = ['username', 'email', 'first_name', 'last_name'];
+        const usersFields = ['phone_number', 'current_address', 'province', 'city', 'avatar_url', 'preferred_theme', 'birth_date'];
+        const data = {};
+        const usersData = {};
+
+        // Separate User and Users fields
+        Object.keys(profileData).forEach(key => {
+            if (userFields.includes(key)) {
+                data[key] = profileData[key];
+            } else if (usersFields.includes(key)) {
+                usersData[key] = profileData[key];
+            }
+        });
+
+        // Add users object if any Users fields are provided
+        if (Object.keys(usersData).length > 0) {
+            data.users = usersData;
+        }
+
+        const response = await api.put('/api/users/update', data, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating profile:', error.response?.data || error.message);
+        throw error.response?.data || { error: 'Profile update failed' };
+    }
+};
+
 export const getProducts = async (page = 1, pageSize = 10) => {
     try {
         const response = await api.get('/api/products', {
@@ -249,31 +288,31 @@ api.interceptors.request.use(
 );
 
 // Response interceptor for token refresh
-api.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        const originalRequest = error.config;
+// api.interceptors.response.use(
+//     (response) => response,
+//     async (error) => {
+//         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
+//         if (error.response?.status === 401 && !originalRequest._retry) {
+//             originalRequest._retry = true;
 
-            try {
-                console.log('Attempting to refresh token...');
-                const newAccessToken = await refreshToken();
-                if (newAccessToken) {
-                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-                    return api(originalRequest);
-                }
-            } catch (refreshError) {
-                console.log('Token refresh failed completely');
-                await clearTokens();
-                // You might want to trigger a logout event here
-                return Promise.reject(refreshError);
-            }
-        }
+//             try {
+//                 console.log('Attempting to refresh token...');
+//                 const newAccessToken = await refreshToken();
+//                 if (newAccessToken) {
+//                     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+//                     return api(originalRequest);
+//                 }
+//             } catch (refreshError) {
+//                 console.log('Token refresh failed completely');
+//                 await clearTokens();
+//                 // You might want to trigger a logout event here
+//                 return Promise.reject(refreshError);
+//             }
+//         }
 
-        return Promise.reject(error);
-    }
-);
+//         return Promise.reject(error);
+//     }
+// );
 
 export default api;
