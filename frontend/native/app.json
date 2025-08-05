@@ -4,7 +4,7 @@
     "slug": "longchau",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/seele_icon.png",
+    "icon": "./assets/images/pharmacy_icon.png",
     "scheme": "native",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -16,7 +16,7 @@
         "INTERNET"
       ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/pharmacy_icon.png",
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true
