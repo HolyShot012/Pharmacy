@@ -288,31 +288,31 @@ api.interceptors.request.use(
 );
 
 // Response interceptor for token refresh
-api.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        const originalRequest = error.config;
+// api.interceptors.response.use(
+//     (response) => response,
+//     async (error) => {
+//         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
+//         if (error.response?.status === 401 && !originalRequest._retry) {
+//             originalRequest._retry = true;
 
-            try {
-                console.log('Attempting to refresh token...');
-                const newAccessToken = await refreshToken();
-                if (newAccessToken) {
-                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-                    return api(originalRequest);
-                }
-            } catch (refreshError) {
-                console.log('Token refresh failed completely');
-                await clearTokens();
-                // You might want to trigger a logout event here
-                return Promise.reject(refreshError);
-            }
-        }
+//             try {
+//                 console.log('Attempting to refresh token...');
+//                 const newAccessToken = await refreshToken();
+//                 if (newAccessToken) {
+//                     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+//                     return api(originalRequest);
+//                 }
+//             } catch (refreshError) {
+//                 console.log('Token refresh failed completely');
+//                 await clearTokens();
+//                 // You might want to trigger a logout event here
+//                 return Promise.reject(refreshError);
+//             }
+//         }
 
-        return Promise.reject(error);
-    }
-);
+//         return Promise.reject(error);
+//     }
+// );
 
 export default api;
