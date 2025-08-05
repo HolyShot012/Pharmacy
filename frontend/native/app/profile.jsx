@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { ScrollView, Text, TouchableOpacity, View, Alert, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,8 +8,7 @@ import { styles } from '../components/ui/Styles';
 import { theme } from '../components/ui/Theme';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../components/AuthContext';
-import { updateProfile } from './api';
-import { push } from 'expo-router/build/global-state/routing';
+import { updateUser } from './api.jsx'; // Import updateUser instead of updateProfile
 
 // Move ProfileField component outside to prevent re-creation on renders
 const ProfileField = React.memo(({ label, value, icon, fieldKey, editable = true, multiline = false, isEditing, onChangeText }) => (
@@ -81,8 +81,8 @@ const ProfilePage = () => {
         phone: '',
         address: '',
         dateOfBirth: '',
-        gender: '',
-        emergencyContact: ''
+        city: '',
+        province: ''
     });
 
     const [editedInfo, setEditedInfo] = useState({ ...userInfo });
@@ -95,8 +95,8 @@ const ProfilePage = () => {
                 email: user.email || 'Not provided',
                 phone: user.phone_number || 'Not provided',
                 address: user.current_address || 'Not provided',
-                city: user.city || '',
-                province: user.province || '',
+                city: user.city || 'Not provided',
+                province: user.province || 'Not provided',
                 dateOfBirth: user.birth_date ? new Date(user.birth_date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -111,7 +111,7 @@ const ProfilePage = () => {
     const handleSave = async () => {
         try {
             setIsLoading(true);
-            
+
             // Parse the name into first and last name
             const nameParts = editedInfo.name.trim().split(' ');
             const firstName = nameParts[0] || '';
@@ -119,12 +119,12 @@ const ProfilePage = () => {
 
             // Prepare the data for the API call
             const profileData = {
-                first_name: firstName,
-                last_name: lastName,
+                first_name: firstName !== 'Not provided' ? firstName : null,
+                last_name: lastName !== 'Not provided' ? lastName : null,
                 phone_number: editedInfo.phone !== 'Not provided' ? editedInfo.phone : null,
                 current_address: editedInfo.address !== 'Not provided' ? editedInfo.address : null,
-                city: editedInfo.city || null,
-                province: editedInfo.province || null,
+                city: editedInfo.city !== 'Not provided' ? editedInfo.city : null,
+                province: editedInfo.province !== 'Not provided' ? editedInfo.province : null,
             };
 
             // Only include birth_date if it's a valid date
@@ -138,18 +138,18 @@ const ProfilePage = () => {
             }
 
             // Call the API to update the profile
-            await updateProfile(profileData);
-            
+            await updateUser(profileData);
+
             // Refresh the auth context to get updated user data
             await refreshAuth();
-            
+
             setUserInfo({ ...editedInfo });
             setIsEditing(false);
             Alert.alert('Success', 'Profile updated successfully!');
         } catch (error) {
             console.error('Profile update error:', error);
             Alert.alert(
-                'Error', 
+                'Error',
                 error.error || error.message || 'Failed to update profile. Please try again.'
             );
         } finally {
@@ -181,23 +181,21 @@ const ProfilePage = () => {
         <SafeAreaView style={[styles.container, { backgroundColor: '#F9FAFB' }]} edges={['top']}>
             {/* Header */}
             <View style={[styles.header, { backgroundColor: '#FFFFFF', elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4 }]}>
-                <TouchableOpacity 
+                <TouchableOpacity
                     onPress={() => router.back()}
                     style={{ padding: 8, marginRight: 16 }}
                 >
                     <Icon name="arrow-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
-                
+
                 <View style={{ flex: 1 }}>
                     <Text style={[styles.headerTitle, { fontSize: 20, fontWeight: 'bold' }]}>
                         Profile
                     </Text>
                 </View>
-
-
             </View>
 
-            <ScrollView 
+            <ScrollView
                 style={{ flex: 1 }}
                 contentContainerStyle={{ padding: 16 }}
                 showsVerticalScrollIndicator={false}
@@ -252,7 +250,7 @@ const ProfilePage = () => {
                     }}>
                         Personal Information
                     </Text>
-                    
+
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <TouchableOpacity
                             onPress={() => {
@@ -272,21 +270,21 @@ const ProfilePage = () => {
                             }}
                         >
                             {isLoading ? (
-                                <ActivityIndicator 
-                                    size="small" 
+                                <ActivityIndicator
+                                    size="small"
                                     color="#FFFFFF"
                                 />
                             ) : isEditing ? (
-                                <Icon 
-                                    name="checkmark" 
-                                    size={24} 
-                                    color="#FFFFFF" 
+                                <Icon
+                                    name="checkmark"
+                                    size={24}
+                                    color="#FFFFFF"
                                 />
                             ) : (
                                 <Edit
-                                    name="edit" 
-                                    size={28} 
-                                    color={theme.colors.primary} 
+                                    name="edit"
+                                    size={28}
+                                    color={theme.colors.primary}
                                 />
                             )}
                         </TouchableOpacity>
@@ -301,28 +299,28 @@ const ProfilePage = () => {
                                     backgroundColor: '#F3F4F6'
                                 }}
                             >
-                                <Icon 
-                                    name="close" 
-                                    size={24} 
-                                    color={theme.colors.subtext} 
+                                <Icon
+                                    name="close"
+                                    size={24}
+                                    color={theme.colors.subtext}
                                 />
                             </TouchableOpacity>
                         )}
                     </View>
                 </View>
 
-                <ProfileField 
-                    label="Full Name" 
-                    value={isEditing ? editedInfo.name : userInfo.name} 
+                <ProfileField
+                    label="Full Name"
+                    value={isEditing ? editedInfo.name : userInfo.name}
                     icon="person-outline"
                     fieldKey="name"
                     isEditing={isEditing}
                     onChangeText={handleFieldChange}
                 />
 
-                <ProfileField 
-                    label="Email Address" 
-                    value={isEditing ? editedInfo.email : userInfo.email} 
+                <ProfileField
+                    label="Email Address"
+                    value={isEditing ? editedInfo.email : userInfo.email}
                     icon="mail-outline"
                     fieldKey="email"
                     editable={false}
@@ -330,18 +328,18 @@ const ProfilePage = () => {
                     onChangeText={handleFieldChange}
                 />
 
-                <ProfileField 
-                    label="Phone Number" 
-                    value={isEditing ? editedInfo.phone : userInfo.phone} 
+                <ProfileField
+                    label="Phone Number"
+                    value={isEditing ? editedInfo.phone : userInfo.phone}
                     icon="call-outline"
                     fieldKey="phone"
                     isEditing={isEditing}
                     onChangeText={handleFieldChange}
                 />
 
-                <ProfileField 
-                    label="Address" 
-                    value={isEditing ? editedInfo.address : userInfo.address} 
+                <ProfileField
+                    label="Address"
+                    value={isEditing ? editedInfo.address : userInfo.address}
                     icon="location-outline"
                     fieldKey="address"
                     multiline={true}
@@ -350,9 +348,9 @@ const ProfilePage = () => {
                 />
 
                 {(userInfo.city || isEditing) && (
-                    <ProfileField 
-                        label="City" 
-                        value={isEditing ? editedInfo.city : userInfo.city} 
+                    <ProfileField
+                        label="City"
+                        value={isEditing ? editedInfo.city : userInfo.city}
                         icon="location-outline"
                         fieldKey="city"
                         isEditing={isEditing}
@@ -361,9 +359,9 @@ const ProfilePage = () => {
                 )}
 
                 {(userInfo.province || isEditing) && (
-                    <ProfileField 
-                        label="Province" 
-                        value={isEditing ? editedInfo.province : userInfo.province} 
+                    <ProfileField
+                        label="Province"
+                        value={isEditing ? editedInfo.province : userInfo.province}
                         icon="location-outline"
                         fieldKey="province"
                         isEditing={isEditing}
@@ -371,9 +369,9 @@ const ProfilePage = () => {
                     />
                 )}
 
-                <ProfileField 
-                    label="Date of Birth" 
-                    value={isEditing ? editedInfo.dateOfBirth : userInfo.dateOfBirth} 
+                <ProfileField
+                    label="Date of Birth"
+                    value={isEditing ? editedInfo.dateOfBirth : userInfo.dateOfBirth}
                     icon="calendar-outline"
                     fieldKey="dateOfBirth"
                     isEditing={isEditing}

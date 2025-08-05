@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'https://pharmacy.up.railway.app/'; // Replace with your Supabase or production URL (e.g., https://your-supabase-url)
+const API_URL = 'http://127.0.0.1:8000'; // Replace with your Supabase or production URL (e.g., https://your-supabase-url)
 
 const api = axios.create({
     baseURL: API_URL,
@@ -169,6 +169,45 @@ export const updateProfile = async (profileData) => {
         );
         return response.data;
     } catch (error) {
+        throw error.response?.data || { error: 'Profile update failed' };
+    }
+};
+
+export const updateUser = async (profileData) => {
+    try {
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+            throw { error: 'No access token available' };
+        }
+
+        // Construct nested structure for Users model fields
+        const userFields = ['username', 'email', 'first_name', 'last_name'];
+        const usersFields = ['phone_number', 'current_address', 'province', 'city', 'avatar_url', 'preferred_theme', 'birth_date'];
+        const data = {};
+        const usersData = {};
+
+        // Separate User and Users fields
+        Object.keys(profileData).forEach(key => {
+            if (userFields.includes(key)) {
+                data[key] = profileData[key];
+            } else if (usersFields.includes(key)) {
+                usersData[key] = profileData[key];
+            }
+        });
+
+        // Add users object if any Users fields are provided
+        if (Object.keys(usersData).length > 0) {
+            data.users = usersData;
+        }
+
+        const response = await api.put('/api/users/update', data, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating profile:', error.response?.data || error.message);
         throw error.response?.data || { error: 'Profile update failed' };
     }
 };

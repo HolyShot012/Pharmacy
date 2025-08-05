@@ -9,6 +9,9 @@ from .serializer import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Users, Branches
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from django.db import transaction, IntegrityError
+from rest_framework.exceptions import ValidationError
 
 @api_view(['POST'])
 def register_user(request):
@@ -61,6 +64,31 @@ def get_user(request):
     Users.objects.get_or_create(id=user, defaults={'role': 'patient'})
     serializer = UsersSerializer(user)
     return Response(serializer.data)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_user(request):
+    try:
+        with transaction.atomic():
+            # Get the authenticated user
+            user = request.user
+            
+            # Validate and update using serializer
+            serializer = UsersSerializer(user, data=request.data, partial=True)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Save the updated data
+            serializer.save()
+            
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+    except IntegrityError as e:
+        return Response({'error': 'Database error, e.g., duplicate email'}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
 
 @api_view(['GET'])
 def get_branches(request):
