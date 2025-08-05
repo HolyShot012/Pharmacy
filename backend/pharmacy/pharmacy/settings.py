@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,19 +19,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7mx^b-#q_9xw09qltrd*9gyezu_ja!zr0-wge+_l&nq%gt4fq3'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # ALLOWED_HOSTS = [
 #     '127.0.0.1',
 #     'localhost',
 #     '10.0.2.2',  # Android emulator
 #     '192.168.1.39', 
+#     os.environ.get("https://pharmacy-production-6701.up.railway.app/", "127.0.0.1"),  # for local + railway
+#     ".up.railway.app",  # wildcard for all railway subdomains
+#     "localhost",
 # ]
 ALLOWED_HOSTS = ['*']
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-dev-secret')
 
 # Application definition
 
@@ -47,8 +52,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'api',
-    
-    
 ]
 
 REST_FRAMEWORK = {
@@ -76,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 # CORS_ALLOWED_ORIGINS = [
@@ -120,7 +124,7 @@ import dj_database_url
 load_dotenv('.env')
 
 # Build the database URL from environment variables
-DATABASE_URL = f"postgres://{os.getenv('user')}:{os.getenv('password')}@{os.getenv('host')}:{os.getenv('port')}/{os.getenv('dbname')}"
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # Configure DATABASES with connection pooling and max age
 DATABASES = {

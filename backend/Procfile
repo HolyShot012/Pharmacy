@@ -1,0 +1,1 @@
+web: gunicorn pharmacy.wsgi:application --bind 0.0.0.0 127.0.0.1:$PORT
