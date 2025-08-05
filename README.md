@@ -97,7 +97,6 @@ pharmacy/
    ```bash
    python manage.py makemigrations
    python manage.py migrate
-   python manage.py createsuperuser
    ```
 
 6. **Run development server**
@@ -139,11 +138,7 @@ pharmacy/
 # Database
 DATABASE_URL=postgresql://user:password@localhost:5432/pharmacy_db
 DEBUG=True
-SECRET_KEY=your-secret-key
 
-# API Settings
-ALLOWED_HOSTS=localhost,127.0.0.1
-CORS_ALLOWED_ORIGINS=http://localhost:19006,http://localhost:8081
 
 # JWT Settings
 JWT_SECRET_KEY=your-jwt-secret
@@ -342,7 +337,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email [support@pharmacy.com](mailto:support@pharmacy.com) or join our Slack channel.
+For support, email [support@pharmacy.com](mailto:ductri02lt2@gmail.com) or join our Slack channel.
 
 ## 🙏 Acknowledgments
 
