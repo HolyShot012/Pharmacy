@@ -180,9 +180,7 @@ export const getProducts = async (page = 1, pageSize = 10) => {
                 page,
                 page_size: pageSize,
             },
-
         });
-
         return response.data;
     } catch (error) {
         console.error('Error fetching products:', error.response?.data || error.message);

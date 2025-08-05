@@ -7,12 +7,15 @@ import { styles } from '../components/ui/Styles';
 import { theme } from '../components/ui/Theme';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import FormatVND from '../components/FormatVND';
 
 const CheckoutPage = () => {
     const { cartItems, clearCart } = useCart();
     const { user } = useAuth();
     const router = useRouter();
-    const [selectedPayment, setSelectedPayment] = useState('card');
+    const insets = useSafeAreaInsets();
+    const [selectedPayment, setSelectedPayment] = useState('momo');
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     
     const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -20,10 +23,8 @@ const CheckoutPage = () => {
     const total = subtotal + deliveryFee;
 
     const paymentMethods = [
-        { id: 'card', name: 'Credit/Debit Card', icon: 'credit-card', description: 'Visa, Mastercard, American Express' },
-        { id: 'paypal', name: 'PayPal', icon: 'paypal', description: 'Pay with your PayPal account' },
-        { id: 'apple', name: 'Apple Pay', icon: 'apple', description: 'Touch ID or Face ID' },
-        { id: 'google', name: 'Google Pay', icon: 'google', description: 'Pay with Google' },
+        { id: 'momo', name: 'Momo', icon: 'smartphone', description: 'Pay with Momo e-wallet' },
+        { id: 'zalopay', name: 'Zalopay', icon: 'smartphone', description: 'Pay with Zalopay e-wallet' },
         { id: 'cash', name: 'Cash on Delivery', icon: 'money', description: 'Pay when you receive your order' }
     ];
 
@@ -59,7 +60,7 @@ const CheckoutPage = () => {
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-            <ScrollView style={{ flex: 1 }}>
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
                 {/* Header */}
                 <View style={{ flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md, paddingTop: theme.spacing.lg }}>
                     <TouchableOpacity onPress={() => router.back()} style={{ marginRight: theme.spacing.md }}>
@@ -79,22 +80,22 @@ const CheckoutPage = () => {
                                 <Text style={{ fontWeight: '500', color: theme.colors.text }}>{item.name}</Text>
                                 <Text style={{ color: theme.colors.subtext, fontSize: 12 }}>Qty: {item.quantity}</Text>
                             </View>
-                            <Text style={{ fontWeight: 'bold', color: theme.colors.text }}>${(item.price * item.quantity).toFixed(2)}</Text>
+                            <Text style={{ fontWeight: 'bold', color: theme.colors.text }}><FormatVND value={item.price * item.quantity} /></Text>
                         </View>
                     ))}
                     
                     <View style={{ borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingTop: theme.spacing.sm, marginTop: theme.spacing.sm }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
                             <Text style={{ color: theme.colors.subtext }}>Subtotal</Text>
-                            <Text style={{ color: theme.colors.text }}>${subtotal.toFixed(2)}</Text>
+                            <Text style={{ color: theme.colors.text }}><FormatVND value={subtotal} /></Text>
                         </View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
                             <Text style={{ color: theme.colors.subtext }}>Delivery Fee</Text>
-                            <Text style={{ color: theme.colors.text }}>${deliveryFee.toFixed(2)}</Text>
+                            <Text style={{ color: theme.colors.text }}><FormatVND value={deliveryFee} /></Text>
                         </View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingTop: 8, marginTop: 8 }}>
                             <Text style={{ fontSize: 16, fontWeight: 'bold', color: theme.colors.text }}>Total</Text>
-                            <Text style={{ fontSize: 16, fontWeight: 'bold', color: theme.colors.primary }}>${total.toFixed(2)}</Text>
+                            <Text style={{ fontSize: 16, fontWeight: 'bold', color: theme.colors.primary }}><FormatVND value={total} /></Text>
                         </View>
                     </View>
                 </View>
@@ -186,7 +187,7 @@ const CheckoutPage = () => {
             </ScrollView>
 
             {/* Place Order Button */}
-            <View style={{ padding: theme.spacing.md, backgroundColor: theme.colors.white, borderTopWidth: 1, borderTopColor: '#E5E7EB' }}>
+            <View style={{ padding: theme.spacing.md, backgroundColor: theme.colors.white, borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingBottom: insets.bottom }}>
                 <TouchableOpacity
                     onPress={handlePlaceOrder}
                     style={{
@@ -200,7 +201,7 @@ const CheckoutPage = () => {
                 >
                     <MaterialIcons name="shopping-cart" size={20} color={theme.colors.white} style={{ marginRight: 8 }} />
                     <Text style={{ color: theme.colors.white, fontWeight: 'bold', fontSize: 16 }}>
-                        Place Order • ${total.toFixed(2)}
+                        Place Order • <FormatVND value={total} />
                     </Text>
                 </TouchableOpacity>
             </View>

@@ -9,6 +9,8 @@ import { styles } from '../../components/ui/Styles';
 import { theme } from '../../components/ui/Theme';
 import { useLocalSearchParams } from 'expo-router';
 import { getProducts } from '../api.jsx'
+import FormatVND from '../../components/FormatVND';
+import Slider from '@react-native-community/slider';
 
 const FILTER_BUTTON_HEIGHT = 36;
 
@@ -25,7 +27,8 @@ const ProductPage = () => {
   const [filters, setFilters] = useState({
     classLevels: [], // Array of selected class levels
     inStockOnly: false,
-    priceRange: 'all' // 'all', 'under25', '25to50', '50to100', 'over100'
+    minPrice: 0,
+    maxPrice: 10000000 // 10 million VND default max
   });
 
   // Pagination state
@@ -53,12 +56,11 @@ const ProductPage = () => {
     }
   }, [params.category]);
 
-  // Fetch products when filters, search, or page change
+  // Fetch all products once (large page size) and filter client-side
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await getProducts(currentPage, itemsPerPage);
-        console.log(response.results)
+        const response = await getProducts(1, 1000); // Fetch all products (or as many as possible)
         // Category to emoji mapping
         const getCategoryEmoji = (category) => {
           const categoryMap = {
@@ -70,7 +72,6 @@ const ProductPage = () => {
           };
           return categoryMap[category] || categoryMap['default'];
         };
-
         // Transform API data to match frontend expectations
         const transformedProducts = (response.results || []).map(product => ({
           ...product,
@@ -81,43 +82,23 @@ const ProductPage = () => {
           rating: 4.5, // Default rating since API doesn't provide it
           image: getCategoryEmoji(product.category)
         }));
-        
         setProducts(transformedProducts);
-        setTotalCount(response.count || 0);
-        setTotalPages(Math.ceil((response.count || 0) / itemsPerPage));
       } catch (error) {
         console.error('Error fetching products:', error);
         setProducts([]);
-        setTotalCount(0);
-        setTotalPages(1);
       }
     };
     fetchProducts();
-  }, [currentPage, selectedCategory, searchQuery, filters]);
+  }, []);
 
-  // Filter products based on all criteria (client-side filtering after API fetch)
+  // Client-side filtering and pagination
   const allFilteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesClassLevel = filters.classLevels.length === 0 || filters.classLevels.includes(product.class_level);
     const matchesStock = !filters.inStockOnly || product.quantity > 0;
     let matchesPrice = true;
-    switch (filters.priceRange) {
-      case 'under25':
-        matchesPrice = product.price < 25;
-        break;
-      case '25to50':
-        matchesPrice = product.price >= 25 && product.price <= 50;
-        break;
-      case '50to100':
-        matchesPrice = product.price > 50 && product.price <= 100;
-        break;
-      case 'over100':
-        matchesPrice = product.price > 100;
-        break;
-      default:
-        matchesPrice = true;
-    }
+    matchesPrice = product.price >= filters.minPrice && product.price <= filters.maxPrice;
     return matchesCategory && matchesSearch && matchesClassLevel && matchesStock && matchesPrice;
   });
 
@@ -132,6 +113,11 @@ const ProductPage = () => {
     setTotalCount(totalFilteredCount);
     setTotalPages(Math.ceil(totalFilteredCount / itemsPerPage));
   }, [totalFilteredCount]);
+
+  // Reset to page 1 when filters/search/category change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, searchQuery, filters]);
 
   const handleCategoryPress = (categoryName) => {
     setSelectedCategory(categoryName);
@@ -374,9 +360,9 @@ const ProductPage = () => {
               </View>
 
               <View style={styles.productPriceRow}>
-                <Text style={styles.productPrice}>${item.price}</Text>
+                <Text style={styles.productPrice}><FormatVND value={item.price} /></Text>
                 {item.originalPrice > item.price && (
-                  <Text style={styles.productOriginalPrice}>${item.originalPrice}</Text>
+                  <Text style={styles.productOriginalPrice}><FormatVND value={item.originalPrice} /></Text>
                 )}
               </View>
 
@@ -462,7 +448,7 @@ const ProductPage = () => {
               color: theme.colors.subtext,
               textAlign: 'center'
             }}>
-              Showing {startIndex + 1}-{Math.min(endIndex, totalCount)} of {totalCount} results
+              Showing {startIndex + 1}-{Math.min(endIndex, totalFilteredCount)} of {totalFilteredCount} results
             </Text>
           </View>
 
@@ -646,43 +632,35 @@ const ProductPage = () => {
               {/* Price Range Filter */}
               <View style={{ marginBottom: theme.spacing.lg }}>
                 <Text style={{ fontSize: 16, fontWeight: '600', color: theme.colors.text, marginBottom: theme.spacing.sm }}>
-                  Price Range
+                  Price Range (VND)
                 </Text>
-                <View style={{ gap: 8 }}>
-                  {[
-                    { key: 'all', label: 'All Prices' },
-                    { key: 'under25', label: 'Under $25' },
-                    { key: '25to50', label: '$25 - $50' },
-                    { key: '50to100', label: '$50 - $100' },
-                    { key: 'over100', label: 'Over $100' }
-                  ].map(range => (
-                    <TouchableOpacity
-                      key={range.key}
-                      onPress={() => handlePriceRangeChange(range.key)}
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        backgroundColor: filters.priceRange === range.key ? theme.colors.primary : '#E5E7EB',
-                        paddingHorizontal: 16,
-                        paddingVertical: 12,
-                        borderRadius: 12
-                      }}
-                    >
-                      <Icon
-                        name={filters.priceRange === range.key ? "radio-button-on" : "radio-button-off"}
-                        size={20}
-                        color={filters.priceRange === range.key ? 'white' : theme.colors.subtext}
-                        style={{ marginRight: 12 }}
-                      />
-                      <Text style={{
-                        color: filters.priceRange === range.key ? 'white' : theme.colors.text,
-                        fontWeight: filters.priceRange === range.key ? 'bold' : 'normal'
-                      }}>
-                        {range.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <Text style={{ fontSize: 14, color: theme.colors.text }}><FormatVND value={filters.minPrice} /></Text>
+                  <Text style={{ fontSize: 14, color: theme.colors.text }}>-</Text>
+                  <Text style={{ fontSize: 14, color: theme.colors.text }}><FormatVND value={filters.maxPrice} /></Text>
                 </View>
+                <Slider
+                  style={{ width: '100%', height: 40 }}
+                  minimumValue={0}
+                  maximumValue={1000000}
+                  step={1000}
+                  value={filters.minPrice}
+                  onValueChange={min => setFilters(prev => ({ ...prev, minPrice: Math.min(min, prev.maxPrice) }))}
+                  minimumTrackTintColor={theme.colors.primary}
+                  maximumTrackTintColor="#E5E7EB"
+                  thumbTintColor={theme.colors.primary}
+                />
+                <Slider
+                  style={{ width: '100%', height: 40 }}
+                  minimumValue={0}
+                  maximumValue={1000000}
+                  step={1000}
+                  value={filters.maxPrice}
+                  onValueChange={max => setFilters(prev => ({ ...prev, maxPrice: Math.max(max, prev.minPrice) }))}
+                  minimumTrackTintColor={theme.colors.primary}
+                  maximumTrackTintColor="#E5E7EB"
+                  thumbTintColor={theme.colors.primary}
+                />
               </View>
             </ScrollView>
 

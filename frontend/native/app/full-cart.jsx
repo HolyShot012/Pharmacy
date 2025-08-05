@@ -7,6 +7,7 @@ import { styles } from '../components/ui/Styles';
 import { theme } from '../components/ui/Theme';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import FormatVND from '../components/FormatVND';
 
 const FullCartPage = () => {
     const { cartItems, updateQuantity, clearCart } = useCart();
@@ -57,7 +58,7 @@ const FullCartPage = () => {
                                 {item.manufacturer && (
                                     <Text style={{ color: theme.colors.subtext, fontSize: 11, marginTop: 1 }}>{item.manufacturer}</Text>
                                 )}
-                                <Text style={{ color: '#16A34A', fontWeight: 'bold', fontSize: 16, marginTop: 4 }}>${item.price}</Text>
+                                <Text style={{ color: '#16A34A', fontWeight: 'bold', fontSize: 16, marginTop: 4 }}><FormatVND value={item.price} /></Text>
                                 {item.need_approval && (
                                     <View style={{ backgroundColor: '#FEF3C7', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, alignSelf: 'flex-start', marginTop: 4 }}>
                                         <Text style={{ color: '#92400E', fontSize: 10, fontWeight: 'bold' }}>Prescription Required</Text>
@@ -84,7 +85,7 @@ const FullCartPage = () => {
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <Text style={{ color: theme.colors.subtext, fontSize: 14 }}>Subtotal</Text>
                                 <Text style={{ fontWeight: 'bold', color: theme.colors.text, fontSize: 14 }}>
-                                    ${(item.price * item.quantity).toFixed(2)}
+                                    <FormatVND value={item.price * item.quantity} />
                                 </Text>
                             </View>
                         </View>
@@ -101,7 +102,7 @@ const FullCartPage = () => {
                                     {item.name} x{item.quantity}
                                 </Text>
                                 <Text style={{ fontWeight: 'bold', color: theme.colors.text }}>
-                                    ${(item.price * item.quantity).toFixed(2)}
+                                    <FormatVND value={item.price * item.quantity} />
                                 </Text>
                             </View>
                         ))}
@@ -110,15 +111,15 @@ const FullCartPage = () => {
 
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
                             <Text style={{ color: theme.colors.subtext }}>Subtotal</Text>
-                            <Text style={{ fontWeight: 'bold' }}>${total.toFixed(2)}</Text>
+                            <Text style={{ fontWeight: 'bold' }}><FormatVND value={total} /></Text>
                         </View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
                             <Text style={{ color: theme.colors.subtext }}>Delivery Fee</Text>
-                            <Text style={{ fontWeight: 'bold' }}>$5.00</Text>
+                            <Text style={{ fontWeight: 'bold' }}><FormatVND value={5000} /></Text>
                         </View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                             <Text style={{ color: theme.colors.subtext }}>Tax (8%)</Text>
-                            <Text style={{ fontWeight: 'bold' }}>${(total * 0.08).toFixed(2)}</Text>
+                            <Text style={{ fontWeight: 'bold' }}><FormatVND value={total * 0.08} /></Text>
                         </View>
 
                         <View style={{ height: 1, backgroundColor: '#F3F4F6', marginVertical: 8 }} />
@@ -126,7 +127,7 @@ const FullCartPage = () => {
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
                             <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.colors.text }}>Total</Text>
                             <Text style={{ fontWeight: 'bold', fontSize: 18, color: '#16A34A' }}>
-                                ${(total + 5 + (total * 0.08)).toFixed(2)}
+                                <FormatVND value={total + 5000 + (total * 0.08)} />
                             </Text>
                         </View>
 

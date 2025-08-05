@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { styles } from '../components/ui/Styles';
@@ -9,6 +9,7 @@ import { useRouter } from 'expo-router';
 
 const VaccinationRecordsPage = () => {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
 
     const vaccinationHistory = [
         {
@@ -275,7 +276,7 @@ const VaccinationRecordsPage = () => {
 
             <ScrollView 
                 style={{ flex: 1 }}
-                contentContainerStyle={{ padding: 16 }}
+                contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
                 showsVerticalScrollIndicator={false}
             >
                 {/* Summary Stats */}

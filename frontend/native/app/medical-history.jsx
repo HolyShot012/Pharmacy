@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { styles } from '../components/ui/Styles';
 import { theme } from '../components/ui/Theme';
@@ -193,6 +193,7 @@ const OrderCard = ({ order }) => (
 const MedicalHistoryPage = () => {
     const router = useRouter();
     const { user } = useAuth();
+    const insets = useSafeAreaInsets();
     const [isLoading, setIsLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [orders, setOrders] = useState([]);
@@ -310,7 +311,7 @@ const MedicalHistoryPage = () => {
 
     if (isLoading) {
         return (
-            <SafeAreaView style={[styles.container, { backgroundColor: '#F9FAFB', justifyContent: 'center', alignItems: 'center' }]} edges={['top']}>
+            <SafeAreaView style={[styles.container, { backgroundColor: '#F9FAFB', justifyContent: 'center', alignItems: 'center' }]} edges={['top', 'bottom']}>
                 <ActivityIndicator size="large" color={theme.colors.primary} />
                 <Text style={{ marginTop: 16, color: theme.colors.subtext }}>Loading medical history...</Text>
             </SafeAreaView>
@@ -318,7 +319,7 @@ const MedicalHistoryPage = () => {
     }
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: '#F9FAFB' }]} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: '#F9FAFB' }]} edges={['top', 'bottom']}>
             {/* Header */}
             <View style={[styles.header, { backgroundColor: '#FFFFFF', elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4 }]}>
                 <TouchableOpacity 
@@ -344,7 +345,7 @@ const MedicalHistoryPage = () => {
 
             <ScrollView 
                 style={{ flex: 1 }}
-                contentContainerStyle={{ padding: 16 }}
+                contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl

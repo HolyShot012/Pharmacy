@@ -14,6 +14,8 @@ import { theme } from '../../components/ui/Theme';
 import { useRouter } from 'expo-router';
 import { Modal, Pressable } from 'react-native';
 import { useAuth } from '../../components/AuthContext';
+import { getProducts } from '../api.jsx';
+import FormatVND from '../../components/FormatVND';
 
 const services = [
     { id: 1, name: 'Prescription Upload', icon: FontAwesome5, iconName: 'camera', color: '#3B82F6' },
@@ -29,10 +31,10 @@ const offers = [
 ];
 
 const categories = [
-    { id: 1, name: 'Medicines', icon: '💊', color: '#fee2e2' },
-    { id: 2, name: 'Medical Equipments', icon: '🩺', color: '#d1fae5' },
-    { id: 3, name: 'Cosmeceuticals', icon: '🧴', color: '#dbeafe' },
-    { id: 4, name: 'Selfcare', icon: '🧘‍♀️', color: '#fce7f3' },
+    { id: 1, name: 'Medicine', icon: '💊', color: '#fee2e2' },
+    { id: 2, name: 'Medical Equipment', icon: '🩺', color: '#d1fae5' },
+    { id: 3, name: 'Cosmeceutical', icon: '🧴', color: '#dbeafe' },
+    { id: 4, name: 'Supplement', icon: '🧘‍♀️', color: '#fce7f3' },
 ];
 
 const nearbyPharmacies = [
@@ -41,17 +43,10 @@ const nearbyPharmacies = [
     { id: 3, name: 'Quick Meds', distance: '0.8 km', rating: 4.7, openUntil: '24:00', isOpen: true },
 ];
 
-const featuredProducts = [
-    { id: 1, name: 'Paracetamol 500mg', price: 25.50, originalPrice: 30.00, discount: 15, image: '💊', category: 'Pain Relief', rating: 4.5, inStock: true },
-    { id: 2, name: 'Hand Sanitizer 500ml', price: 45.00, originalPrice: 50.00, discount: 10, image: '🧴', category: 'Personal Care', rating: 4.8, inStock: true },
-    { id: 3, name: 'Vitamin C 1000mg', price: 35.75, originalPrice: 40.00, discount: 11, image: '🧪', category: 'Vitamins', rating: 4.6, inStock: true },
-    { id: 4, name: 'Face Mask (Pack of 50)', price: 120.00, originalPrice: 140.00, discount: 14, image: '😷', category: 'Protection', rating: 4.4, inStock: false },
-    { id: 5, name: 'Digital Thermometer', price: 85.00, originalPrice: 100.00, discount: 15, image: '🌡️', category: 'Medical Devices', rating: 4.7, inStock: true },
-];
+// Featured products will be fetched from backend
 
 const HomePage = () => {
     const [activeTab, setActiveTab] = useState('home');
-    const [searchQuery, setSearchQuery] = useState('');
     const { addToCart } = useCart();
     const { favorites, toggleFavorite, isFavorite } = useFavorites();
     const [showLogout, setShowLogout] = useState(false);
@@ -61,6 +56,43 @@ const HomePage = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const { logout } = useAuth();
     const router = useRouter();
+    const [featuredProducts, setFeaturedProducts] = useState([]);
+
+    useEffect(() => {
+        const fetchFeaturedProducts = async () => {
+            try {
+                const response = await getProducts(1, 4);
+                // Category to emoji mapping (same as products.jsx)
+                const getCategoryEmoji = (category) => {
+                    const categoryMap = {
+                        'Supplement': '🌱',
+                        'Cosmetic': '🧴',
+                        'Medical Equipment': '🩺',
+                        'Medicine': '💊',
+                        'default': '💊'
+                    };
+                    return categoryMap[category] || categoryMap['default'];
+                };
+                const transformedProducts = (response.results || []).map(product => ({
+                    id: product.product_id,
+                    name: product.name,
+                    price: parseFloat(product.unit_price || 0),
+                    originalPrice: product.original_price ? parseFloat(product.original_price) : parseFloat(product.unit_price || 0),
+                    discount: product.discount || 0,
+                    image: getCategoryEmoji(product.category),
+                    category: product.category,
+                    rating: 4.5, // Default rating
+                    inStock: (product.available_quantity || 0) > 0,
+                    quantity: product.available_quantity || 0,
+                    manufacturer: product.manufacturer || '',
+                }));
+                setFeaturedProducts(transformedProducts);
+            } catch (error) {
+                setFeaturedProducts([]);
+            }
+        };
+        fetchFeaturedProducts();
+    }, []);
 
     // Animation refs for notification modal
     const backgroundOpacity = useRef(new Animated.Value(0)).current;
@@ -272,7 +304,6 @@ const HomePage = () => {
             pathname: '/products',
             params: { category: category.name }
         });
-        console.log(`Navigating to ${category.name} category`);
     };
 
     const handlePharmacyCall = (pharmacy) => {
@@ -297,12 +328,6 @@ const HomePage = () => {
         );
     };
 
-    const handleSearch = () => {
-        if (searchQuery.trim()) {
-            router.push('/products');
-            console.log(`Searching for: ${searchQuery}`);
-        }
-    };
 
     const handleViewAllCategories = () => {
         router.push('/products');
@@ -713,18 +738,6 @@ const HomePage = () => {
                         </Animated.View>
                     </Modal>
 
-                    {/* Search Bar */}
-                    <View style={styles.searchContainer}>
-                        <TouchableOpacity onPress={handleSearch} style={styles.searchIcon}>
-                            <Icon name="search" size={20} color={theme.colors.subtext} />
-                        </TouchableOpacity>
-                        <TextInput
-                            placeholder="Search medicines, health products..."
-                            value={searchQuery}
-                            onChangeText={setSearchQuery}
-                            onSubmitEditing={handleSearch}
-                            style={styles.searchInput} />
-                    </View>
 
                     {/* Quick Services */}
                     <View style={styles.section}>
@@ -836,7 +849,7 @@ const HomePage = () => {
                             </TouchableOpacity>
                         </View>
                         <FlatList
-                            data={featuredProducts.slice(0, 4)}
+                            data={featuredProducts}
                             keyExtractor={item => item.id.toString()}
                             renderItem={({ item }) => (
                                 <View style={[styles.productCard, { justifyContent: 'flex-start' }]}>
@@ -861,9 +874,9 @@ const HomePage = () => {
                                         <Text style={styles.productRating}>{item.rating}</Text>
                                     </View>
                                     <View style={styles.productPriceRow}>
-                                        <Text style={styles.productPrice}>${item.price}</Text>
+                                        <Text style={styles.productPrice}><FormatVND value={item.price} /></Text>
                                         {item.originalPrice > item.price && (
-                                            <Text style={styles.productOriginalPrice}>${item.originalPrice}</Text>
+                                            <Text style={styles.productOriginalPrice}><FormatVND value={item.originalPrice} /></Text>
                                         )}
                                     </View>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, minHeight: 32 }}>
