@@ -33,7 +33,7 @@ const offers = [
 const categories = [
     { id: 1, name: 'Medicine', icon: '💊', color: '#fee2e2' },
     { id: 2, name: 'Medical Equipment', icon: '🩺', color: '#d1fae5' },
-    { id: 3, name: 'Cosmeceutical', icon: '🧴', color: '#dbeafe' },
+    { id: 3, name: 'Cosmectic', icon: '🧴', color: '#dbeafe' },
     { id: 4, name: 'Supplement', icon: '🧘‍♀️', color: '#fce7f3' },
 ];
 
