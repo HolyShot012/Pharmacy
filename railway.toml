@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "npm run build && npx serve dist -s -l 3000"
+startCommand = "cd backend/pharmacy && python manage.py runserver 0.0.0.0:$PORT"
 
 [[services]]
 name = "backend"
