@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
 ]
 # ALLOWED_HOSTS = ['*']
 
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'your-dev-secret')
